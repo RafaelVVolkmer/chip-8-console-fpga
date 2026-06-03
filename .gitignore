@@ -1,0 +1,1038 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+# ==============================================================================
+# Editor and IDE State
+# ==============================================================================
+
+# VS Code: keep shared workspace files, ignore local/user state.
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.vscode/.cache/
+.vscode/.lsp/
+.vscode/.logs/
+.vscode/ipch/
+
+# JetBrains / CLion
+.idea/
+cmake-build-*/
+
+# Eclipse / STM32CubeIDE / Atollic
+.metadata/
+.settings/
+.cproject
+.project
+.atollic/
+*.launch
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Neovim / Vim
+.config/nvim/
+.local/share/nvim/
+.cache/nvim/
+.local/share/nvim/lsp/
+.config/nvim/lsp-settings/
+*.swp
+*.swo
+*.swn
+*.un~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Local editor history
+.history/
+
+# ==============================================================================
+# Tags, Indexes, and Language Server Caches
+# ==============================================================================
+
+tags
+TAGS
+cscope.*
+gtags.files
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+
+.lsp/
+.lsp-cache/
+.lsp-log/
+.lsp-session/
+
+.cache/
+**/.cache/
+.cache/lsp/
+.cache/clangd/
+.cache/pyright/
+.clangd/
+.ccls-cache/
+
+*.lsp.log
+*.lsp-output
+
+# ==============================================================================
+# C / C++ / Assembly Build Artifacts
+# ==============================================================================
+
+# Dependency files
+*.d
+*.dep
+
+# Object and intermediate files
+*.o
+*.obj
+*.lo
+*.la
+*.su
+*.lst
+*.map
+*.srec
+*.sym
+*.tmp
+*.temp
+*.ii
+*.i
+*.s
+
+# Precompiled headers
+*.gch
+*.pch
+
+# Static and import libraries
+*.a
+*.lib
+
+# Shared libraries
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Executables and firmware images
+*.elf
+*.exe
+*.out
+*.app
+*.axf
+*.hex
+*.eep
+*.i*86
+*.x86_64
+
+# Debug symbols and linker/debugger output
+*.dSYM/
+*.pdb
+*.idb
+*.ilk
+*.exp
+
+# ==============================================================================
+# HDL / RTL / FPGA Generic Artifacts
+# ==============================================================================
+
+# Waveforms
+*.vcd
+*.fst
+*.ghw
+*.lxt
+*.lxt2
+*.vpd
+*.wlf
+*.wdb
+*.shm/
+waves/
+waveforms/
+dump.vcd
+dump.fst
+
+# Simulation transcripts and reports
+transcript
+vsim.wlf
+modelsim.ini
+questa.ini
+*.vstf
+*.ucdb
+*.simlog
+*.sim.rpt
+*.sim.out
+
+# Generated netlists / intermediate representations
+*.blif
+*.edif
+*.edf
+*.edn
+*.ngc
+*.ngd
+*.ngm
+*.ngo
+*.vm
+*.vqm
+*.vo
+*.sdf
+*.sdo
+*.sdf.X
+*.il
+*.ilang
+*.json
+*.yslog
+
+# Bitstreams / programming files / FPGA images
+*.bit
+*.bin
+*.fs
+*.jed
+*.jic
+*.mcs
+*.pof
+*.sof
+*.svf
+*.xsvf
+*.rbf
+*.rpd
+
+# Timing, utilization, placement and routing reports
+*.rpt
+*.sta
+*.tim
+*.timing
+*.timing.rpt
+*.util.rpt
+*.power.rpt
+*.place.rpt
+*.route.rpt
+*.fit.rpt
+*.asm.rpt
+*.flow.rpt
+*.pin
+*.pad
+*.par
+*.pnr
+*.mrp
+*.drc
+*.drc.rpt
+
+# Keep source constraints tracked.
+!constraints/**/*.sdc
+!constraints/**/*.cst
+!constraints/**/*.xdc
+!constraints/**/*.pcf
+!constraints/**/*.qsf
+!constraints/**/*.lpf
+!constraints/**/*.ucf
+
+# ==============================================================================
+# Verilator
+# ==============================================================================
+
+obj_dir/
+V*.mk
+V*.h
+V*.cpp
+V*.c
+V*.o
+V*.a
+V*.d
+V*.exe
+V*.verilator_deplist.tmp
+*.verilator.log
+coverage.dat
+logs/verilator/
+verilator_coverage/
+
+# ==============================================================================
+# Icarus Verilog
+# ==============================================================================
+
+*.vvp
+a.out
+ivlpp/
+ivl_*.log
+
+# ==============================================================================
+# GHDL / VHDL
+# ==============================================================================
+
+work-obj*.cf
+*.cf
+ghdl_work/
+*.ghw
+
+# ==============================================================================
+# cocotb / Python HDL Testbenches
+# ==============================================================================
+
+sim_build/
+cocotb_results.xml
+results.xml
+*.fst.hier
+.tox/
+.nox/
+
+# ==============================================================================
+# Yosys / nextpnr / OpenFPGA Tooling
+# ==============================================================================
+
+abc.history
+yosys.log
+nextpnr.log
+nextpnr-*.log
+openFPGALoader.log
+*.asc
+*.config
+*.pack
+*.place
+*.route
+*.fasm
+*.frames
+*.bitstream
+
+# ==============================================================================
+# SymbiYosys / Formal Verification
+# ==============================================================================
+
+*.sby/
+sby-*/
+engine_*/
+status
+model/
+trace*.vcd
+trace*.fst
+trace*.yw
+*.yw
+*.smt2
+*.smtc
+*.btor
+*.wit
+*.aiw
+*.cex
+
+# ==============================================================================
+# Vendor FPGA Tools: Gowin / Tang Nano / Gowin EDA
+# ==============================================================================
+
+# Gowin generated implementation directories
+impl/gwsynthesis/
+impl/pnr/
+impl/temp/
+impl/sim/
+impl/project_process_config.json
+impl/*.log
+impl/**/*.log
+
+# Gowin temporary files
+gowin_dtemp/
+.gowin/
+*.gwsynthesis
+*.gwp
+*.gprj.user
+*.gprj.local
+*.gprj.bak
+*.gao
+*.ao
+*.rao
+*.fs.tmp
+
+# Keep Gowin project and constraints tracked when intentionally committed.
+!*.gprj
+!*.cst
+!*.sdc
+
+# ==============================================================================
+# Vendor FPGA Tools: Xilinx Vivado
+# ==============================================================================
+
+.Xil/
+*.cache/
+*.runs/
+*.hw/
+*.ip_user_files/
+*.sim/
+*.gen/
+*.srcs/sources_1/ip/*/synth/
+*.srcs/sources_1/ip/*/simulation/
+*.jou
+*.str
+*.xpr.user
+*.xpr.local
+
+# Keep project/constraint sources if the project uses Vivado.
+!*.xpr
+!*.xdc
+
+# ==============================================================================
+# Vendor FPGA Tools: Intel Quartus / ModelSim Intel
+# ==============================================================================
+
+db/
+incremental_db/
+output_files/
+simulation/
+greybox_tmp/
+*.qws
+*.smsg
+*.jdi
+*.done
+*.summary
+*.qdf
+*.ddb
+*.cmp
+*.eqn
+*.fit.*
+*.sta.*
+*.asm.*
+*.eda.*
+*.flow.*
+*.map.*
+*.tan.*
+*.pin
+*.sof
+*.pof
+
+# Keep Quartus project/constraints if used.
+!*.qpf
+!*.qsf
+!*.sdc
+
+# ==============================================================================
+# Vendor FPGA Tools: Lattice / Radiant / Diamond / iCEcube2
+# ==============================================================================
+
+_Implmnt/
+*_Implmnt/
+*_synplify/
+*.dir/
+*.ldf
+*.sty
+*.pt
+*.twr
+*.tw1
+*.ncd
+*.prf
+*.lpf.tmp
+
+# Keep Lattice constraints if used.
+!*.lpf
+!*.pcf
+
+# ==============================================================================
+# Build Systems: CMake / Make / Ninja / Autotools / Bazel / Conan
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# CMake / Make / Ninja
+# ------------------------------------------------------------------------------
+
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+CMakeScripts/
+Makefile
+*.cbp
+compile_commands.json
+compile_flags.txt
+.ninja_deps
+.ninja_log
+build.ninja
+rules.ninja
+
+# Nested CMake / Make / Ninja outputs
+**/CMakeCache.txt
+**/CMakeFiles/
+**/cmake_install.cmake
+**/install_manifest.txt
+**/CTestTestfile.cmake
+**/CMakeScripts/
+**/Makefile
+**/*.cbp
+**/compile_commands.json
+**/compile_flags.txt
+**/.ninja_deps
+**/.ninja_log
+**/build.ninja
+**/rules.ninja
+
+# Keep hand-written top-level Makefiles if desired.
+!Makefile.in
+!makefile
+!GNUmakefile
+
+# ------------------------------------------------------------------------------
+# GNU Autotools / Autoconf / Automake / Libtool
+# ------------------------------------------------------------------------------
+
+aclocal.m4
+autom4te.cache/
+autoscan.log
+configure
+configure.scan
+config.cache
+config.log
+config.status
+config.guess
+config.sub
+config.h
+config.h.in
+config.h.in~
+config.lt
+stamp-h1
+
+Makefile.in
+.deps/
+.libs/
+libtool
+ltmain.sh
+m4/libtool.m4
+m4/ltoptions.m4
+m4/ltsugar.m4
+m4/ltversion.m4
+m4/lt~obsolete.m4
+
+# Nested Autotools outputs
+**/autom4te.cache/
+**/config.cache
+**/config.log
+**/config.status
+**/config.h
+**/stamp-h1
+**/.deps/
+**/.libs/
+
+# ------------------------------------------------------------------------------
+# Bazel
+# ------------------------------------------------------------------------------
+
+bazel-*
+.bazelrc.user
+.bazeliskrc
+.bazelversion.lock
+bazel-bin/
+bazel-out/
+bazel-testlogs/
+bazel-genfiles/
+
+# ------------------------------------------------------------------------------
+# Conan
+# ------------------------------------------------------------------------------
+
+conanbuild/
+conanbuildinfo.*
+conaninfo.txt
+conan.lock
+graph_info.json
+
+# Conan 1.x generated files
+conanbuildinfo.cmake
+conanbuildinfo.txt
+conanbuildinfo.json
+conan_paths.cmake
+conan_toolchain.cmake
+
+# Conan 2.x generated files
+CMakeUserPresets.json
+conan_provider.cmake
+conandeps_legacy.cmake
+conan_toolchain.cmake
+deactivate_conanbuild.*
+deactivate_conanrun.*
+conanbuild.*
+conanrun.*
+
+# Conan package/cache folders sometimes created in-tree
+.conan/
+.conan2/
+
+# ------------------------------------------------------------------------------
+# Common Build Directories
+# ------------------------------------------------------------------------------
+
+build/
+build-*/
+_build/
+cmake-build-*/
+out/
+dist/
+target/
+release/
+debug/
+bin/
+obj/
+
+# Keep empty directory anchors.
+!.gitkeep
+
+# ==============================================================================
+# Linux Kernel / Kbuild / KUnit
+# ==============================================================================
+
+*.ko
+*.mod
+*.mod.c
+*.mod.o
+*.order
+*.symvers
+*.cmd
+*.ko.cmd
+*.o.cmd
+*.mod.cmd
+
+.tmp_versions/
+modules.order
+Module.symvers
+Module.markers
+
+# KUnit local build/output directories
+.kunit/
+.kunit-*/
+
+# Kernel config/build leftovers
+.config.old
+*.old
+auto.conf
+auto.conf.cmd
+tristate.conf
+include/config/
+include/generated/
+arch/*/include/generated/
+
+# ==============================================================================
+# Embedded / MCU Toolchains
+# ==============================================================================
+
+# Keil / MDK
+*.uvproj
+*.uvprojx
+*.uvopt
+*.uvoptx
+*.sct
+*.tlog
+
+# Code Composer Studio
+*.ccsproject
+
+# Arduino
+/libraries/
+/build/
+*.ino.cpp
+*.ino.h
+
+# STM32Cube generated local state
+Debug/
+Release/
+.settings/
+.mxproject
+
+# ==============================================================================
+# CHIP-8 SoC Project Artifacts
+# ==============================================================================
+
+# Runtime logs and diagnostics exported over USB
+logs/
+log/
+**/logs/
+**/log/
+*.log
+*.trace
+*.diag
+*.diagnostic
+
+# Generated ROM images, ROM packing outputs and memory init files
+roms/generated/
+roms/private/
+roms/tmp/
+*.ch8.tmp
+*.rom.tmp
+*.mem.tmp
+*.mif.tmp
+*.coe.tmp
+
+# Keep intentional source/demo ROMs if committed.
+!roms/README.md
+!roms/examples/
+!roms/examples/**/*.ch8
+!roms/examples/**/*.rom
+!roms/examples/**/*.md
+
+# SD card images and mounted filesystem images
+sdcard.img
+sdcard-*.img
+*.sdimg
+*.fat
+*.fat32
+*.vfat
+mnt/sd/
+mount/sd/
+sdroot/tmp/
+sdroot/logs/
+
+# Generated firmware/boot images
+boot/generated/
+firmware/generated/
+loader/generated/
+
+# USB capture/output diagnostics
+usb_logs/
+usb-dump/
+*.pcap
+*.pcapng
+
+# ==============================================================================
+# Testing, Coverage, and Static Analysis
+# ==============================================================================
+
+# Coverage
+*.gcda
+*.gcno
+*.gcov
+*.lcov
+*.coverage
+coverage/
+htmlcov/
+lcov.info
+
+# Test output
+test-results/
+test-reports/
+*.testlog
+*.tap
+*.junit.xml
+junit.xml
+
+# Static analysis outputs
+cppcheck/
+clang-tidy/
+scan-build/
+infer-out/
+frama-c/
+.eva/
+*.sarif
+
+# Fuzzing / sanitizers
+corpus/generated/
+crashes/
+leaks/
+asan.log*
+ubsan.log*
+msan.log*
+tsan.log*
+
+# ==============================================================================
+# Documentation Output
+# ==============================================================================
+
+# Generated docs only. Keep source docs tracked.
+docs/html/
+docs/latex/
+docs/xml/
+docs/man/
+doxygen/html/
+doxygen/latex/
+doxygen/xml/
+doxygen/doxygen-awesome/
+site/
+public/
+
+# ==============================================================================
+# Node.js / Frontend Tooling
+# ==============================================================================
+
+node_modules/
+**/node_modules/
+
+.npm/
+.pnpm-store/
+.yarn/
+.yarn-cache/
+.eslintcache
+.stylelintcache
+.prettier-cache
+
+# ==============================================================================
+# Python / Virtual Environments
+# ==============================================================================
+
+.env
+.env.*
+.venv/
+venv/
+.virtualenv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.ipynb_checkpoints/
+
+# Do not ignore checked-in examples.
+!.env.example
+
+# ==============================================================================
+# Rust / Cargo
+# ==============================================================================
+
+target/
+Cargo.lock
+
+# For applications, consider tracking Cargo.lock.
+# Remove the Cargo.lock rule above if the repo contains Rust binaries/tools.
+
+# ==============================================================================
+# Zig / Go
+# ==============================================================================
+
+zig-cache/
+zig-out/
+.zig-cache/
+
+*.test
+*.prof
+*.cover
+coverage.out
+
+# ==============================================================================
+# Containers and Virtualization
+# ==============================================================================
+
+.vagrant/
+docker-compose.override.yml
+.docker/
+containers/
+*.tar
+*.tar.gz
+*.tgz
+
+# ==============================================================================
+# Secrets, Local Configuration, and Credentials
+# ==============================================================================
+
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.asc
+*.gpg
+*.age
+secrets/
+.secrets/
+.local/
+local/
+config.local.*
+*.local.toml
+*.local.yaml
+*.local.yml
+*.local.json
+
+# Keep templates.
+!*.example
+!*.sample
+!config/*.example.*
+!config/*.sample.*
+
+# ==============================================================================
+# Logs, Local Caches, Temporary Files, and OS Metadata
+# ==============================================================================
+
+.lycache/
+**/.lycache/
+
+.cache/
+**/.cache/
+
+*.bak
+*.tmp
+*.temp
+*.orig
+*.rej
+*~
+*.tag
+
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# WSL / Windows zone identifier files
+*.Identifier
+**/*.Identifier
+
+# ==============================================================================
+# Archive / Release Artifacts
+# ==============================================================================
+
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+*.tar.xz
+*.txz
+*.tar.zst
+*.zst
+
+# ==============================================================================
+# Altium Designer Artifacts
+# ==============================================================================
+
+# Backup and history files
+History/
+Project Logs for */
+Project Outputs for */
+Project Releaser Outputs/
+Project Releaser Temp/
+*.PrjPcbStructure
+*.PrjPcbStructure.Zip
+*.PrjPcbVariants
+*.PrjPcbVariants.Zip
+*.PrjPcbZip
+*.PrjPcbZip.Zip
+
+# Altium automatic backups
+*.SchDocPreview
+*.PcbDocPreview
+*.SchDoc.htm
+*.PcbDoc.htm
+*.SchDocPreview
+*.PcbDocPreview
+*.bak
+*.~*
+~$*
+*.orig
+
+# Generated output jobs/results
+*.OutJob.log
+*.REP
+*.rep
+*.Rpt
+*.rpt
+*.Drc
+*.drc
+*.DRR
+*.drr
+*.ERC
+*.erc
+*.LOG
+*.log
+
+# Fabrication and assembly generated outputs
+Gerber/
+Gerbers/
+NC Drill/
+NCDrill/
+ODB/
+ODB++/
+Pick Place/
+PickPlace/
+Assembly/
+Fabrication/
+BOM/
+Outputs/
+Releases/
+
+# Generated manufacturing files
+*.gbr
+*.GBR
+*.gtl
+*.gbl
+*.gts
+*.gbs
+*.gto
+*.gbo
+*.gko
+*.gm1
+*.gm2
+*.gml
+*.pho
+*.art
+*.apr
+*.drl
+*.DRL
+*.xln
+*.cam
+*.ipc
+*.IPC
+*.tgz
+*.tar.gz
+
+# Pick and place / BOM / reports
+*.BomDoc
+*.csv
+*.tsv
+*.xls
+*.xlsx
+*.html
+*.xml
+
+# Altium generated netlists and intermediate exports
+*.Net
+*.net
+*.NetList
+*.netlist
+*.dsn
+*.asc
+*.cmp
+*.bom
+
+# Simulation and signal integrity generated data
+*.sdf
+*.snp
+*.s1p
+*.s2p
+*.s3p
+*.s4p
+*.raw
+*.plt
+
+# Local Altium workspace/cache/database files
+*.PrjPcb.local
+*.PrjPcb.user
+*.PcbDoc.local
+*.SchDoc.local
+*.IntLib.local
+*.DbLib.local
+*.DsnWrk
+*.DsnWrk.local
+*.workspace
+*.workspace.local
+*.cache
+*.Cache
+
+# Draftsman/exported documentation generated from PCB
+*.PCBDwf
+*.PCBDwfPreview
+*.DraftsmanPreview
+*.pdf
+*.PDF
+
+# Keep source Altium design files tracked.
+!*.PrjPcb
+!*.SchDoc
+!*.PcbDoc
+!*.PcbLib
+!*.SchLib
+!*.IntLib
+!*.DbLib
+!*.OutJob
+!*.Harness
+!*.BomDoc
+!*.PCBDwf
+
+# EOF
