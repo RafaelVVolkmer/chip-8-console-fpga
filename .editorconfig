@@ -1,0 +1,275 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+# .editorconfig
+# Keep formatting consistent across all editors/IDEs for this project.
+#
+# Project default:
+#   Kernel-like style: real tabs, visual width of 8 columns.
+#
+# Language/tool-specific sections below override this only when the
+# ecosystem has a stronger formatting convention.
+
+root = true
+
+# ---------------------------------------------------------------------------
+# Global default: kernel-like formatting
+# ---------------------------------------------------------------------------
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+indent_size = 8
+tab_width = 8
+
+# ---------------------------------------------------------------------------
+# C / C++ / Assembly
+# ---------------------------------------------------------------------------
+
+[*.{c,h,cc,hh,cpp,hpp,cxx,hxx}]
+indent_style = tab
+indent_size = 8
+tab_width = 8
+
+[*.{s,S,asm}]
+indent_style = tab
+indent_size = 8
+tab_width = 8
+
+# ---------------------------------------------------------------------------
+# Linux kernel-style files
+# ---------------------------------------------------------------------------
+
+[{Kconfig,Kconfig.*,**/Kconfig,**/Kconfig.*}]
+indent_style = tab
+indent_size = 8
+tab_width = 8
+
+[{.config,*.config,defconfig,*_defconfig,**/defconfig,**/*_defconfig}]
+indent_style = tab
+indent_size = 8
+tab_width = 8
+
+[{Makefile,GNUmakefile,*.mk}]
+indent_style = tab
+indent_size = 8
+tab_width = 8
+
+# ---------------------------------------------------------------------------
+# Verilog / SystemVerilog
+# ---------------------------------------------------------------------------
+[*.{v,sv,vh,svh}]
+indent_style = space
+indent_size = 4
+tab_width = 4
+max_line_length = 80
+
+# Common filelist extensions used by HDL tools.
+[*.{f,fl,flist,filelist}]
+indent_style = space
+indent_size = 4
+tab_width = 4
+max_line_length = 120
+
+# ---------------------------------------------------------------------------
+# VHDL
+# ---------------------------------------------------------------------------
+[*.{vhd,vhdl}]
+indent_style = space
+indent_size = 4
+tab_width = 4
+max_line_length = 80
+
+# ---------------------------------------------------------------------------
+# Languages with their own standard formatters
+# ---------------------------------------------------------------------------
+
+# Go:
+# gofmt owns formatting and uses tabs.
+[*.go]
+indent_style = tab
+indent_size = 8
+tab_width = 8
+
+# Rust:
+# rustfmt default style uses 4 spaces.
+[*.rs]
+indent_style = space
+indent_size = 4
+
+# Zig:
+# zig fmt owns formatting. Zig style uses spaces, not hard tabs.
+[*.{zig,zon}]
+indent_style = space
+indent_size = 4
+
+# Python:
+# PEP 8 / black-style indentation.
+[*.py]
+indent_style = space
+indent_size = 4
+
+# ---------------------------------------------------------------------------
+# Build systems
+# ---------------------------------------------------------------------------
+
+# CMake:
+# cmake-format/common convention usually uses spaces.
+[{CMakeLists.txt,*.cmake}]
+indent_style = space
+indent_size = 2
+
+# Bazel / Starlark:
+# buildifier/Starlark style uses 4 spaces.
+[{BUILD,BUILD.bazel,WORKSPACE,WORKSPACE.bazel,MODULE.bazel,*.bzl,*.bazel,*.star}]
+indent_style = space
+indent_size = 4
+
+# Meson:
+[*.{build,meson}]
+indent_style = space
+indent_size = 2
+
+# Ninja:
+[*.ninja]
+indent_style = space
+indent_size = 2
+
+# ---------------------------------------------------------------------------
+# Shell / Docker / tooling
+# ---------------------------------------------------------------------------
+
+# Shell scripts:
+# shfmt owns formatting for shell files in this repository.
+[*.{sh,bash,dash,ksh,zsh}]
+indent_style = space
+indent_size = 4
+
+# Docker:
+# Spaces are easier to read in RUN/COPY/ENV continuations.
+[{Dockerfile,*.Dockerfile,Dockerfile.*,dockerfile,*.dockerfile}]
+indent_style = space
+indent_size = 4
+
+[.dockerignore]
+indent_style = space
+indent_size = 2
+
+# ---------------------------------------------------------------------------
+# Web
+# ---------------------------------------------------------------------------
+
+# JavaScript / TypeScript:
+# Prettier/common frontend convention.
+[*.{js,jsx,ts,tsx,mjs,cjs}]
+indent_style = space
+indent_size = 2
+
+# HTML / CSS:
+[*.{html,htm,css,scss,sass,less}]
+indent_style = space
+indent_size = 2
+
+# ---------------------------------------------------------------------------
+# Qt
+# ---------------------------------------------------------------------------
+
+# Qt C++ files are handled by the C/C++ section above.
+
+# qmake project/include files.
+[*.{pro,pri,prf}]
+indent_style = space
+indent_size = 4
+
+# QML / Qt JavaScript:
+[*.{qml,qmltypes}]
+indent_style = space
+indent_size = 4
+
+# Qt Designer and Qt resource files are XML.
+[*.{ui,qrc}]
+indent_style = space
+indent_size = 2
+
+# ---------------------------------------------------------------------------
+# Data / config files
+# ---------------------------------------------------------------------------
+
+# YAML:
+# Also covers Kubernetes manifests.
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Kubernetes-specific common filenames.
+[{kustomization.yaml,kustomization.yml,Chart.yaml,values.yaml,values.yml}]
+indent_style = space
+indent_size = 2
+
+[*.{json,json5}]
+indent_style = space
+indent_size = 2
+
+[*.{toml,ini,cfg,conf,toon}]
+indent_style = space
+indent_size = 2
+
+# ---------------------------------------------------------------------------
+# Database / SQL
+# ---------------------------------------------------------------------------
+
+[*.{sql,psql,pgsql,mysql,sqlite}]
+indent_style = space
+indent_size = 4
+
+# ---------------------------------------------------------------------------
+# Documentation
+# ---------------------------------------------------------------------------
+
+# Markdown:
+# Don't trim trailing whitespace because it can be meaningful for hard line
+# breaks in Markdown.
+[*.md]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = false
+
+[*.rst]
+indent_style = space
+indent_size = 3
+
+# Doxygen config files.
+[{Doxyfile,Doxyfile.*,*.doxyfile}]
+indent_style = space
+indent_size = 4
+
+# Doxygen documentation pages.
+[*.{dox,mdox}]
+indent_style = space
+indent_size = 2
+
+# Mermaid diagrams.
+[*.{mmd,mermaid}]
+indent_style = space
+indent_size = 2
+
+# ---------------------------------------------------------------------------
+# Markup / assets
+# ---------------------------------------------------------------------------
+
+[*.{xml,svg}]
+indent_style = space
+indent_size = 2
+
+# ---------------------------------------------------------------------------
+# Generated / whitespace-sensitive files
+# ---------------------------------------------------------------------------
+
+# Patch/diff files:
+# Preserve whitespace exactly.
+[*.{patch,diff}]
+trim_trailing_whitespace = false
+insert_final_newline = true
