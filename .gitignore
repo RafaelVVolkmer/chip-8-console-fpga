@@ -569,7 +569,6 @@ out/
 dist/
 target/
 release/
-debug/
 bin/
 obj/
 obj_dir/
