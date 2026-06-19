@@ -185,6 +185,8 @@ questa.ini
 *.il
 *.ilang
 *.json
+!validation/csr/chip8_csr_reset.json
+!validation/lockstep/trace_schema.json
 *.yslog
 
 # Bitstreams / programming files / FPGA images

@@ -1,0 +1,30 @@
+{
+  "spdx_license": "GPL-3.0-only",
+  "schema": "chip8-lockstep-trace-v1",
+  "required_fields": [
+    "cycle",
+    "retire_index",
+    "opcode",
+    "pc",
+    "i",
+    "v",
+    "sp",
+    "stack",
+    "delay",
+    "sound",
+    "framebuffer_hash",
+    "memory_hash"
+  ],
+  "failure_classes": [
+    "pc_divergence",
+    "i_divergence",
+    "register_divergence",
+    "vf_divergence",
+    "stack_divergence",
+    "timer_divergence",
+    "framebuffer_divergence",
+    "timeout",
+    "deadlock",
+    "illegal_opcode_policy"
+  ]
+}
