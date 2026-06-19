@@ -465,6 +465,7 @@ rules.ninja
 **/rules.ninja
 
 # Keep hand-written top-level Makefiles if desired.
+!Makefile
 !Makefile.in
 !makefile
 !GNUmakefile
@@ -569,9 +570,17 @@ release/
 debug/
 bin/
 obj/
+obj_dir/
+obj_dir_*/
+generated/
+reports/
+logs/
+outputs/
+coverage/
+verilator_coverage/
 
-# Keep empty directory anchors.
-!.gitkeep
+# Windows alternate data streams copied from downloaded files.
+*:Zone.Identifier
 
 # ==============================================================================
 # Linux Kernel / Kbuild / KUnit
