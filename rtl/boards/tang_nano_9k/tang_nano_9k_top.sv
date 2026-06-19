@@ -65,7 +65,6 @@ module tang_nano_9k_top #(
   // ------------------------------------------------------------
 
   logic          soc_clk;
-  logic          video_clk;
   logic          soc_rst_n;
   logic [2047:0] framebuffer;
   logic [11:0]   pc;
@@ -81,12 +80,20 @@ module tang_nano_9k_top #(
   // Submodule instances
   // ------------------------------------------------------------
 
-  tang_nano_9k_clock_reset u_clock_reset (
-    .clk_27mhz_i(clk_27mhz_i),
-    .reset_button_ni(reset_button_ni),
-    .soc_clk_o(soc_clk),
-    .video_clk_o(video_clk),
-    .soc_rst_no(soc_rst_n)
+  assign soc_clk = clk_27mhz_i;
+
+  chip8_reset_controller u_reset_controller (
+    .clk_i(clk_27mhz_i),
+    .ext_rst_ni(reset_button_ni),
+    .pll_locked_i(1'b1),
+    .dap_reset_i(1'b0),
+    .watchdog_reset_i(1'b0),
+    .fatal_error_i(1'b0),
+    .soc_rst_no(soc_rst_n),
+    .cpu_rst_no(),
+    .video_rst_no(),
+    .debug_rst_no(),
+    .storage_rst_no()
   );
 
   // ------------------------------------------------------------
@@ -158,7 +165,7 @@ module tang_nano_9k_top #(
     heartbeat_q[23]
   };
 
-  assign board_unused = video_clk ^ framebuffer[0] ^ pc[0];
+  assign board_unused = framebuffer[0] ^ pc[0];
 endmodule
 
 `default_nettype wire
