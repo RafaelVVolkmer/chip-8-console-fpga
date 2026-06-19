@@ -1,0 +1,67 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+suite: chip8_boot
+owner: rtl-validation
+description: ROM packaging, boot pipeline, DAP ROM load and fault injection.
+testpoints:
+  - id: CHIP8-BOOT-SMOKE
+    feature: Smoke ROM packaging and execution
+    test: validate_smoke_and_boot
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - smoke_rom
+      - sd_boot_image
+      - framebuffer_golden
+  - id: CHIP8-BOOT-PIPELINE
+    feature: Boot pipeline simulation
+    test: tb_chip8_boot_pipeline
+    ci_job: verilator-pr
+    artifact: obj/tb_chip8_boot_pipeline
+    status: passing
+    level: regression
+    coverage:
+      - boot_complete
+      - core_hold
+      - core_release
+      - dma2d_status
+  - id: CHIP8-BOOT-ROM-CORPUS
+    feature: Bundled ROM corpus execution
+    test: chip8_run_roms.sh
+    ci_job: coverage-nightly
+    artifact: generated/chip8/roms
+    status: passing
+    level: nightly
+    coverage:
+      - bundled_roms
+      - generic_rom_mode
+      - timeout_guard
+  - id: CHIP8-BOOT-TIMENDUS
+    feature: Timendus CHIP-8 ROM compliance suite
+    test: tb_chip8_lockstep_timendus_roms
+    ci_job: coverage-nightly
+    artifact: validation/programs/chip8/timendus
+    status: planned
+    level: nightly
+    coverage:
+      - opcode_rom
+      - flags_rom
+      - quirks_rom
+      - keypad_rom
+      - beep_rom
+  - id: CHIP8-BOOT-FAULT-INJECTION
+    feature: Boot and DAP robustness under corrupted input
+    test: validation/cocotb/boot/test_corrupt_rom.py
+    ci_job: cocotb-nightly
+    artifact: reports/fault_injection/boot.json
+    status: planned
+    level: nightly
+    coverage:
+      - reset_glitch_during_boot
+      - partial_rom
+      - oversized_rom
+      - bad_crc
+      - uart_byte_drop

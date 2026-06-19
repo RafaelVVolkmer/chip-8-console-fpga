@@ -35,4 +35,4 @@ jobs:
         run: go install mvdan.cc/sh/v3/cmd/shfmt@v3.10.0
 
       - name: Run shfmt check
-        run: shfmt -d -i 4 -ci scripts/**/*.sh
+        run: make lint-shfmt

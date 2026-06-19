@@ -33,4 +33,4 @@ jobs:
         run: python -m pip install --disable-pip-version-check 'reuse==6.2.0'
 
       - name: Run REUSE lint
-        run: reuse lint
+        run: make lint-reuse

@@ -7,11 +7,92 @@ SPDX-License-Identifier: GPL-3.0-only
 
 This document describes the executable verification strategy for the RTL, Rust reference model, FFI bridge, documentation and CI infrastructure.
 
-The goal is not one monolithic test. The repository uses layered checks so each tool owns a narrow class of risk:
+The goal is not one monolithic test. The repository uses layered checks so each
+tool owns a narrow class of risk, and the top-level `make check` always runs
+repository linters before hardware/software tests:
 
 ```text
-style/config -> Rust model -> FFI -> RTL lint -> RTL simulation -> formal -> synthesis -> coverage -> docs/license links
+linters -> validation metadata -> Rust model -> FFI -> RTL simulation -> formal -> synthesis -> coverage
 ```
+
+The GitHub Actions workflows call the same Makefile entry points used locally.
+This keeps PR, nightly and sign-off behavior versioned in one place instead of
+duplicating command sequences in YAML.
+
+The executable validation plan lives under `validation/testplans/`. Each
+`*.testplan.yml` file maps feature, test, coverage intent, status, CI job and
+artifact into a parseable matrix.
+
+```sh
+make testplan-check
+make validation-report
+```
+
+Generated outputs:
+
+```text
+reports/validation/status.json
+reports/validation/summary.md
+reports/validation/index.html
+```
+
+Validation levels:
+
+| Level | Command policy | Purpose |
+|---|---|---|
+| PR | `make quick-check` | linters plus fast regression and traceability checks |
+| Verilator PR job | `make ci-verilator-pr` | Verilator lint/sim, fuzz ROM generation and validation report |
+| Nightly | `make ci-nightly` | linters, ROM corpus, formal, fuzz ROMs, coverage and report |
+| Formal nightly | `make ci-formal-nightly` | all formal proof and cover targets plus report |
+| Coverage nightly | `make ci-coverage-nightly` | fuzz ROM generation and Verilator coverage |
+| Board weekly | `make ci-board-synth-weekly` | all board smoke preflights plus open-source board checks |
+| Sign-off | `make ci-signoff` | full local sign-off plus all board smoke preflights |
+
+## 0. Makefile target policy
+
+Every executable check has a singular Make target. Aggregate targets only
+sequence those singular targets.
+
+Top-level targets:
+
+| Target | Expands to |
+|---|---|
+| `make lint-all` | license, Markdown, YAML, Actions, TOML, JSON, shell, spelling, links, Verilator lint and `svlint` |
+| `make validation-infra-check` | testplan parser, cocotb syntax, CSR metadata and lockstep schema checks |
+| `make pr-regression` | validation metadata, Rust/FFI, smoke sims, AXI/SoC sims, Yosys checks, report and formal syntax |
+| `make regression` | `pr-regression`, ROM corpus simulation and all formal proof targets |
+| `make full-regression` | `regression` plus formal cover |
+| `make check` | `lint-all`, `full-regression`, synthesis and Verilator coverage |
+| `make clean` | removes generated simulation, formal, synthesis, coverage, Rust, report, ROM and vendor artifacts |
+
+Singular RTL simulation targets:
+
+| Target | Testbench |
+|---|---|
+| `make chip8-components-sim` | `tb_chip8_components` |
+| `make chip8-blocks-sim` | `tb_chip8_blocks_exhaustive` |
+| `make chip8-sim` | `tb_chip8_top` with generated smoke ROM memory |
+| `make tb-chip8-axi-lite-sim` | `tb_chip8_axi_lite` |
+| `make tb-chip8-keypad-remote-core-sim` | `tb_chip8_keypad_remote_core` |
+| `make tb-chip8-video-remote-core-sim` | `tb_chip8_video_remote_core` |
+| `make tb-tang-nano-9k-top-sim` | `tb_tang_nano_9k_top` |
+| `make tb-chip8-boot-pipeline-sim` | `tb_chip8_boot_pipeline` |
+| `make tb-chip8-dap-protocol-sim` | `tb_chip8_dap_protocol` |
+
+Singular formal targets:
+
+| Target | SymbiYosys file |
+|---|---|
+| `make formal-chip8-protocol-blocks` | `validation/formal/protocol/chip8_protocol_blocks.sby` |
+| `make formal-chip8-blocks` | `validation/formal/core/chip8_blocks.sby` |
+| `make formal-chip8-components` | `validation/formal/core/chip8_components.sby` |
+| `make formal-chip8-top` | `validation/formal/core/chip8_top.sby` |
+| `make formal-chip8-boot-pipeline` | `validation/formal/soc/axi/chip8_boot_pipeline.sby` |
+| `make formal-chip8-soc-axi` | `validation/formal/soc/axi/chip8_soc_axi.sby` |
+| `make formal-chip8-keypad` | `validation/formal/soc/keypad/chip8_keypad.sby` |
+| `make formal-chip8-video` | `validation/formal/soc/video/chip8_video.sby` |
+| `make formal-tang-nano-9k` | `validation/formal/boards/tang_nano_9k/tang_nano_9k.sby` |
+| `make formal-cover-chip8` | `validation/formal/coverage/chip8_cover.sby` |
 
 ## 1. Verification scope
 
@@ -81,6 +162,16 @@ Simulation targets:
 | AXI/SoC simulation | `make axi-sim` | register, keypad, video, boot and DAP flows |
 | ROM corpus | `make chip8-roms-sim` | bundled CHIP-8 program regression |
 | Verilator coverage | `make coverage` | instrumented core/SoC simulation coverage reports |
+| Testplan matrix | `make validation-report` | feature-to-test-to-coverage traceability |
+| Cocotb scaffold syntax | `make cocotb-check` | Python testbench entry-point syntax |
+| Lockstep contract | `make lockstep-plan` | RTL/Rust comparison trace schema |
+| CSR source check | `make csr-check` | parseable register-plan artifacts |
+
+Planned lockstep tests compare the Verilated RTL against the Rust model at
+opcode retire boundaries. The comparison contract is documented in
+`validation/lockstep/README.md` and uses `trace_schema.json` for report
+interchange. Planned cocotb tests live under `validation/cocotb/` for AXI-Lite,
+boot, keypad, video and DAP scoreboards.
 
 ## 4. Formal verification
 
@@ -123,15 +214,20 @@ Warnings such as framebuffer memory expansion are reviewed as synthesis-shape in
 
 | Gate | Command |
 |---|---|
-| SPDX/REUSE | `reuse lint` |
-| Markdown | `npx --yes markdownlint-cli2 "**/*.md" "#generated/**" "#reports/**" "#validation/rust/target/**"` |
-| YAML | `yamllint .github/workflows .yamllint.yml` |
-| GitHub Actions | `actionlint -color` |
-| TOML | `taplo lint ...` and `taplo format --check ...` |
-| Shell diagnostics | `shellcheck scripts/**/*.sh` |
-| Shell formatting | `shfmt -d -i 4 -ci scripts/**/*.sh` |
-| Links | `lychee --config .lychee.toml README.md "docs/**/*.md" validation/simulation/README.md` |
-| Spelling | `typos` |
+| SPDX/REUSE | `make lint-reuse` |
+| Markdown | `make lint-markdown` |
+| YAML | `make lint-yaml` |
+| GitHub Actions | `make lint-actions` |
+| TOML | `make lint-toml` |
+| JSON | `make lint-json` |
+| Shell diagnostics | `make lint-shellcheck` |
+| Shell formatting | `make lint-shfmt` |
+| Links | `make lint-links` |
+| Spelling | `make lint-typos` |
+| Verilator lint | `make lint-verilator` |
+| `svlint` | `make lint-svlint` |
+| All linters | `make lint-all` |
+| Validation report | `make validation-infra-check validation-report` |
 
 Each gate has a dedicated GitHub Actions workflow so failures are localized.
 
@@ -143,22 +239,29 @@ The broad local sign-off target is:
 make check
 ```
 
-This runs license compliance, Rust validation, FFI, Verilator lint/simulation, ROM regression, formal checks, synthesis checks, coverage and configuration checks.
+This runs all repository linters first, then validation metadata checks, Rust
+validation, FFI, Verilator simulation, ROM regression, formal checks, synthesis
+checks and coverage.
 
-Before opening a release-quality pull request, also run the singular infrastructure checks:
+For CI parity, use the level-specific aliases:
 
 ```sh
-reuse lint
-npx --yes markdownlint-cli2 "**/*.md" "#generated/**" "#reports/**" "#validation/rust/target/**"
-yamllint .github/workflows .yamllint.yml
-actionlint -color
-taplo lint .lychee.toml .svlint.toml .typos.toml REUSE.toml validation/rust/Cargo.toml validation/rust/chip8-model/Cargo.toml validation/rust/.cargo/config.toml validation/rust/.cargo/nightly-aggressive.toml validation/rust/rustfmt.toml
-taplo format --check .lychee.toml .svlint.toml .typos.toml REUSE.toml validation/rust/Cargo.toml validation/rust/chip8-model/Cargo.toml validation/rust/.cargo/config.toml validation/rust/.cargo/nightly-aggressive.toml validation/rust/rustfmt.toml
-shellcheck scripts/**/*.sh
-shfmt -d -i 4 -ci scripts/**/*.sh
-typos
-lychee --config .lychee.toml README.md "docs/**/*.md" validation/simulation/README.md
+make ci-pr
+make ci-nightly
+make ci-signoff
 ```
+
+Clean generated state with:
+
+```sh
+make clean
+```
+
+`make clean` removes generated Verilator objects, Yosys/synthesis reports,
+coverage outputs, fuzz ROMs, formal working directories, Rust build outputs,
+board smoke reports, generated `.mem` ROM images, vendor project artifacts and
+common simulator trace files. It intentionally preserves source files,
+licenses and checked-in documentation.
 
 ## 8. Reference material
 

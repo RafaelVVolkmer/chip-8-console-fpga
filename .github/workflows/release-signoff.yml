@@ -1,0 +1,79 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+---
+name: Release signoff
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-signoff-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-signoff:
+    name: Full local sign-off equivalent
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            build-essential \
+            jq \
+            shellcheck \
+            verilator \
+            yosys \
+            symbiyosys \
+            boolector
+          python -m pip install --disable-pip-version-check \
+            'reuse==6.2.0' \
+            'yamllint==1.38.0'
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install lint CLIs
+        run: |
+          cargo install taplo-cli --locked
+          cargo install typos-cli --locked
+          cargo install lychee --locked
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+          go install mvdan.cc/sh/v3/cmd/shfmt@v3.10.0
+
+      - name: Cache Cargo artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: validation/rust -> target
+
+      - name: Run full sign-off
+        run: make ci-signoff
+
+      - name: Upload sign-off artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-signoff-artifacts
+          path: |
+            reports
+            generated/chip8
+            validation/formal/**/PASS
+            validation/formal/**/status

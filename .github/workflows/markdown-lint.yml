@@ -32,9 +32,4 @@ jobs:
           node-version: '22'
 
       - name: Run markdownlint
-        run: >-
-          npx --yes markdownlint-cli2
-          '**/*.md'
-          '#generated/**'
-          '#reports/**'
-          '#validation/rust/target/**'
+        run: make lint-markdown

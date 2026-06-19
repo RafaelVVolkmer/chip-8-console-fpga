@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+suite: chip8_fuzz
+owner: rtl-validation
+description: ROM fuzzing and property-based validation.
+testpoints:
+  - id: CHIP8-FUZZ-RUST-PROPERTIES
+    feature: Rust property-style architectural invariants
+    test: validate_randomized_program_fuzz
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - pc_even
+      - pc_in_range
+      - sp_limit
+      - draw_bounds
+      - timer_no_underflow
+      - bcd_digits
+      - carry_borrow
+  - id: CHIP8-FUZZ-ROM-GENERATOR
+    feature: Constrained random CHIP-8 ROM generator
+    test: tb_chip8_lockstep_fuzz_seed
+    ci_job: coverage-nightly
+    artifact: reports/fuzz/rom_seed.json
+    status: planned
+    level: nightly
+    coverage:
+      - legal_opcode_mix
+      - call_depth_control
+      - valid_jump_targets
+      - invalid_opcode_injection
+      - keypad_timer_draw_mix
+  - id: CHIP8-FUZZ-HARDWARE
+    feature: Verilator hardware fuzzing against Rust oracle
+    test: cargo-fuzz/libfuzzer harness
+    ci_job: release-signoff
+    artifact: reports/fuzz/corpus
+    status: planned
+    level: signoff
+    coverage:
+      - rtl_rust_divergence
+      - assertion_failure
+      - simulation_deadlock
+      - framebuffer_hash_mismatch
+      - stack_fault

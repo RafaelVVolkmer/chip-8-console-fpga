@@ -23,6 +23,7 @@
 `default_nettype none
 
 module tang_nano_9k_top #(
+  parameter int CLK_HZ = tang_nano_9k_pkg::TANG_NANO_9K_CLK_HZ,
   parameter int VIDEO_BACKEND =
     tang_nano_9k_pkg::TANG_NANO_9K_DEFAULT_VIDEO_BACKEND,
   parameter bit DEBUG_PROFILE = 1'b1
@@ -74,6 +75,7 @@ module tang_nano_9k_top #(
   logic          dap_error;
   logic          dap_locked;
   logic [23:0]   heartbeat_q;
+  logic          board_unused;
 
   // ------------------------------------------------------------
   // Submodule instances
@@ -100,7 +102,7 @@ module tang_nano_9k_top #(
   end
 
   chip8_usb_soc_top #(
-    .CLK_HZ(tang_nano_9k_pkg::TANG_NANO_9K_CLK_HZ),
+    .CLK_HZ(CLK_HZ),
     .VIDEO_BACKEND(VIDEO_BACKEND),
     .DEBUG_PROFILE(DEBUG_PROFILE)
   ) u_usb_soc (
@@ -156,7 +158,6 @@ module tang_nano_9k_top #(
     heartbeat_q[23]
   };
 
-  logic board_unused;
   assign board_unused = video_clk ^ framebuffer[0] ^ pc[0];
 endmodule
 

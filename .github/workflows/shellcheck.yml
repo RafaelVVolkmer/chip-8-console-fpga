@@ -30,4 +30,4 @@ jobs:
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y shellcheck
 
       - name: Run ShellCheck
-        run: shellcheck scripts/**/*.sh
+        run: make lint-shellcheck

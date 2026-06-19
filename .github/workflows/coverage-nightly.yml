@@ -1,0 +1,52 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+---
+name: Coverage nightly
+
+on:
+  schedule:
+    - cron: '37 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coverage-nightly-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  coverage-nightly:
+    name: Verilator coverage and fuzz ROMs
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y verilator
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: validation/rust -> target
+
+      - name: Run coverage regression
+        run: make ci-coverage-nightly CHIP8_FUZZ_SEEDS=100
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-nightly-artifacts
+          path: |
+            reports/coverage
+            reports/validation
+            generated/chip8/fuzz

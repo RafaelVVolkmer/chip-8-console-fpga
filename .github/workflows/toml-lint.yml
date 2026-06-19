@@ -32,28 +32,5 @@ jobs:
       - name: Install Taplo
         run: cargo install taplo-cli --locked
 
-      - name: Run Taplo lint
-        run: >-
-          taplo lint
-          .lychee.toml
-          .svlint.toml
-          .typos.toml
-          REUSE.toml
-          validation/rust/Cargo.toml
-          validation/rust/chip8-model/Cargo.toml
-          validation/rust/.cargo/config.toml
-          validation/rust/.cargo/nightly-aggressive.toml
-          validation/rust/rustfmt.toml
-
-      - name: Run Taplo format check
-        run: >-
-          taplo format --check
-          .lychee.toml
-          .svlint.toml
-          .typos.toml
-          REUSE.toml
-          validation/rust/Cargo.toml
-          validation/rust/chip8-model/Cargo.toml
-          validation/rust/.cargo/config.toml
-          validation/rust/.cargo/nightly-aggressive.toml
-          validation/rust/rustfmt.toml
+      - name: Run Taplo checks
+        run: make lint-toml

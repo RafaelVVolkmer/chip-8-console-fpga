@@ -1,0 +1,56 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+suite: chip8_video
+owner: rtl-validation
+description: Framebuffer, sprite, DMA2D, timing and video backend validation.
+testpoints:
+  - id: CHIP8-VIDEO-SPRITE
+    feature: Sprite draw, wrap and collision
+    test: validate_control_memory_video_edges
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - draw_aligned
+      - draw_unaligned
+      - draw_wrap
+      - collision_flag
+      - clear_screen
+  - id: CHIP8-VIDEO-REMOTE-CORE
+    feature: Video remote core register and framebuffer path
+    test: tb_chip8_video_remote_core
+    ci_job: verilator-pr
+    artifact: obj/tb_chip8_video_remote_core
+    status: passing
+    level: regression
+    coverage:
+      - framebuffer_write
+      - status_read
+      - irq_path
+  - id: CHIP8-VIDEO-PIPELINE-MODEL
+    feature: DCMIPP and DMA2D model contracts
+    test: validate_video_pipeline
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - dcmipp_capture
+      - postprocess_invert
+      - postprocess_mirror
+      - dma2d_fill
+      - dma2d_bounds
+  - id: CHIP8-VIDEO-COCOTB-DMA2D
+    feature: Cocotb DMA2D and framebuffer scoreboard
+    test: validation/cocotb/video/test_dma2d.py
+    ci_job: cocotb-nightly
+    artifact: reports/cocotb/video.xml
+    status: planned
+    level: nightly
+    coverage:
+      - random_rectangle
+      - overlap
+      - clear_during_write
+      - framebuffer_hash

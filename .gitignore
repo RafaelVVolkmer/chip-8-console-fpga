@@ -661,6 +661,7 @@ log/
 roms/generated/
 roms/private/
 roms/tmp/
+validation/programs/chip8/*.mem
 *.ch8.tmp
 *.rom.tmp
 *.mem.tmp

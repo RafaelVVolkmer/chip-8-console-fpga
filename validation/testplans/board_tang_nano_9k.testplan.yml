@@ -1,0 +1,51 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+suite: board_tang_nano_9k
+owner: board-validation
+description: Tang Nano 9K synthesis, simulation and board-in-the-loop validation.
+testpoints:
+  - id: CHIP8-BOARD-TANG-LINT
+    feature: Tang Nano 9K top elaboration
+    test: tang_nano_9k_top
+    ci_job: verilator-pr
+    artifact: obj
+    status: passing
+    level: pr
+    coverage:
+      - board_top_elaboration
+      - clock_reset_adapter
+  - id: CHIP8-BOARD-TANG-SIM
+    feature: Tang Nano 9K board testbench
+    test: tb_tang_nano_9k_top
+    ci_job: verilator-pr
+    artifact: obj/tb_tang_nano_9k_top
+    status: passing
+    level: regression
+    coverage:
+      - board_reset
+      - status_leds
+      - usb_soc_bind
+  - id: CHIP8-BOARD-TANG-SYNTH
+    feature: Tang Nano 9K synthesis check
+    test: scripts/verification/yosys_tang_nano_9k_check.ys
+    ci_job: yosys-tang-nano-9k
+    artifact: reports/yosys_tang_nano_9k_check.log
+    status: passing
+    level: regression
+    coverage:
+      - hierarchy_check
+      - synth_elaboration
+  - id: CHIP8-BOARD-TANG-BIT
+    feature: Tang Nano 9K board-in-the-loop smoke
+    test: scripts/board/board_smoke_tang_nano_9k.sh
+    ci_job: board-synth-weekly
+    artifact: reports/board/tang_nano_9k_smoke.json
+    status: planned
+    level: signoff
+    coverage:
+      - board_id
+      - rom_load
+      - framebuffer_hash
+      - keypad_loopback
+      - reset_test

@@ -1,0 +1,195 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+suite: chip8_cpu
+owner: rtl-validation
+description: CHIP-8 CPU opcode, control-flow, lockstep and property coverage.
+testpoints:
+  - id: CHIP8-CPU-LOCKSTEP-SMOKE
+    feature: RTL versus Rust reference lockstep on smoke ROM
+    test: tb_chip8_lockstep_smoke
+    ci_job: verilator-pr
+    artifact: reports/lockstep/smoke.json
+    status: planned
+    level: regression
+    coverage:
+      - pc_compare
+      - i_compare
+      - v_register_compare
+      - stack_compare
+      - framebuffer_hash_compare
+  - id: CHIP8-CPU-LOCKSTEP-RANDOM
+    feature: RTL versus Rust reference lockstep on constrained random ROMs
+    test: tb_chip8_lockstep_random_rom
+    ci_job: coverage-nightly
+    artifact: reports/lockstep/random_seed.json
+    status: planned
+    level: nightly
+    coverage:
+      - random_opcode_stream
+      - illegal_opcode_policy
+      - deadlock_timeout
+  - id: CHIP8-CPU-OP-00E0
+    feature: Clear screen
+    test: validate_control_memory_video_edges
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - framebuffer_clear
+      - pc_increment
+  - id: CHIP8-CPU-OP-00EE
+    feature: Return from subroutine
+    test: validate_control_memory_video_edges
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - stack_pop
+      - pc_restore
+      - stack_underflow_guard
+  - id: CHIP8-CPU-OP-1NNN
+    feature: Jump absolute
+    test: tb_chip8_blocks_exhaustive
+    ci_job: verilator-pr
+    artifact: obj/tb_chip8_blocks_exhaustive
+    status: passing
+    level: regression
+    coverage:
+      - branch_target
+      - pc_alignment
+  - id: CHIP8-CPU-OP-2NNN
+    feature: Call subroutine
+    test: validate_control_memory_video_edges
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - stack_push
+      - return_address
+      - stack_overflow_guard
+  - id: CHIP8-CPU-OP-SKIP
+    feature: Conditional skips 3xnn 4xnn 5xy0 9xy0 Ex9E ExA1
+    test: validate_control_memory_video_edges
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - skip_taken
+      - skip_not_taken
+      - keypad_skip_pressed
+      - keypad_skip_not_pressed
+  - id: CHIP8-CPU-OP-6XNN
+    feature: Load immediate
+    test: validate_randomized_program_fuzz
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - register_write
+      - boundary_values
+  - id: CHIP8-CPU-OP-7XNN
+    feature: Add immediate wraparound
+    test: validate_randomized_program_fuzz
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - add_wraparound
+      - vf_unchanged
+  - id: CHIP8-CPU-OP-8XYN
+    feature: ALU move/or/and/xor/add/sub/shift/reverse-sub
+    test: validate_alu_exhaustive
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - alu_op_move
+      - alu_op_or
+      - alu_op_and
+      - alu_op_xor
+      - alu_op_add
+      - alu_op_sub
+      - alu_shift_right_quirk
+      - alu_shift_left_quirk
+      - vf_source_operand
+      - vf_destination_operand
+  - id: CHIP8-CPU-OP-ANNN
+    feature: Load index register
+    test: validate_randomized_program_fuzz
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - index_write
+      - memory_bounds
+  - id: CHIP8-CPU-OP-BNNN
+    feature: Jump with V0 offset quirk
+    test: tb_chip8_blocks_exhaustive
+    ci_job: verilator-pr
+    artifact: obj/tb_chip8_blocks_exhaustive
+    status: passing
+    level: regression
+    coverage:
+      - jump_offset_v0
+      - pc_bounds
+  - id: CHIP8-CPU-OP-CXNN
+    feature: Random masked immediate
+    test: validate_control_memory_video_edges
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - random_mask
+      - deterministic_seed
+  - id: CHIP8-CPU-OP-DXYN
+    feature: Sprite draw collision wrap and clip policy
+    test: validate_control_memory_video_edges
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - draw_collision
+      - draw_wrap_x
+      - draw_wrap_y
+      - framebuffer_bounds
+  - id: CHIP8-CPU-OP-FXNN
+    feature: Timers wait-key font BCD store/load registers
+    test: validate_control_memory_video_edges
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - delay_timer_read
+      - delay_timer_write
+      - sound_timer_write
+      - wait_key_hold
+      - wait_key_release
+      - font_address
+      - bcd_hundreds_tens_units
+      - fx55_store_registers
+      - fx65_load_registers
+  - id: CHIP8-CPU-PROP-INVARIANTS
+    feature: Property-style randomized architectural invariants
+    test: validate_randomized_program_fuzz
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - pc_in_range
+      - pc_even
+      - sp_in_range
+      - timers_saturate
+      - framebuffer_bounds

@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+---
+name: Validation report
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validation-report-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validation-report:
+    name: Testplan matrix and report
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check validation scaffolding
+        run: make validation-infra-check
+
+      - name: Generate validation report
+        run: make validation-report
+
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report
+          path: reports/validation

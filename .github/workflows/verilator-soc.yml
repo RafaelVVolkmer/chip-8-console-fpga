@@ -30,4 +30,4 @@ jobs:
           sudo apt-get install --no-install-recommends -y verilator
 
       - name: Run SoC Verilator lint
-        run: bash scripts/verification/verilator_axi_lint.sh
+        run: make lint-verilator-axi

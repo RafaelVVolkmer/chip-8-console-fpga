@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+suite: chip8_keypad
+owner: rtl-validation
+description: Keypad matrix, wait-key, debounce, IRQ and FIFO validation.
+testpoints:
+  - id: CHIP8-KEYPAD-REMOTE-CORE
+    feature: Keypad remote core register and IRQ path
+    test: tb_chip8_keypad_remote_core
+    ci_job: verilator-pr
+    artifact: obj/tb_chip8_keypad_remote_core
+    status: passing
+    level: regression
+    coverage:
+      - key_status_read
+      - irq_pending
+      - fifo_event
+  - id: CHIP8-KEYPAD-FX0A
+    feature: FX0A waits until a key is pressed
+    test: validate_control_memory_video_edges
+    ci_job: rust-test
+    artifact: validation/rust/target
+    status: passing
+    level: regression
+    coverage:
+      - wait_key_hold
+      - wait_key_release
+      - register_capture
+  - id: CHIP8-KEYPAD-COCOTB-DEBOUNCE
+    feature: Cocotb randomized debounce and bounce robustness
+    test: validation/cocotb/keypad/test_debounce.py
+    ci_job: cocotb-nightly
+    artifact: reports/cocotb/keypad.xml
+    status: planned
+    level: nightly
+    coverage:
+      - bounce_extreme
+      - matrix_scan
+      - irq_fifo
+      - reset_during_event

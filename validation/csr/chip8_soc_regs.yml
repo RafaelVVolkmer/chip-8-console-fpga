@@ -1,0 +1,79 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+block: chip8_soc
+bus: axi_lite
+addr_width: 16
+data_width: 32
+registers:
+  - name: status
+    offset: 0x0000
+    reset: 0x00000000
+    access: ro
+    fields:
+      - name: halted
+        bits: 0
+      - name: irq_pending
+        bits: 1
+      - name: boot_busy
+        bits: 2
+      - name: reserved
+        bits: 31:3
+        access: reserved
+  - name: control
+    offset: 0x0004
+    reset: 0x00000000
+    access: rw
+    fields:
+      - name: core_hold
+        bits: 0
+      - name: core_release
+        bits: 1
+        access: wo
+      - name: clear_irq
+        bits: 2
+        access: w1c
+      - name: reserved
+        bits: 31:3
+        access: reserved
+  - name: pc
+    offset: 0x0008
+    reset: 0x00000200
+    access: ro
+    fields:
+      - name: pc
+        bits: 11:0
+      - name: reserved
+        bits: 31:12
+        access: reserved
+  - name: keypad
+    offset: 0x0010
+    reset: 0x00000000
+    access: rw
+    fields:
+      - name: keys
+        bits: 15:0
+      - name: reserved
+        bits: 31:16
+        access: reserved
+  - name: video_hash
+    offset: 0x0020
+    reset: 0x00000000
+    access: ro
+    fields:
+      - name: framebuffer_hash
+        bits: 31:0
+  - name: dap_status
+    offset: 0x0030
+    reset: 0x00000000
+    access: ro
+    fields:
+      - name: busy
+        bits: 0
+      - name: error
+        bits: 1
+      - name: locked
+        bits: 2
+      - name: reserved
+        bits: 31:3
+        access: reserved

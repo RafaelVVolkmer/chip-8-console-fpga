@@ -30,4 +30,4 @@ jobs:
           sudo apt-get install --no-install-recommends -y verilator
 
       - name: Run core Verilator lint
-        run: bash scripts/verification/verilator_lint.sh
+        run: make lint-verilator-core

@@ -1,0 +1,68 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+suite: chip8_soc_axi
+owner: rtl-validation
+description: AXI-Lite, CSR and SoC register-plane validation.
+testpoints:
+  - id: CHIP8-AXI-LINT
+    feature: SoC, AXI, board and peripheral elaboration
+    test: scripts/verification/verilator_axi_lint.sh
+    ci_job: verilator-pr
+    artifact: obj
+    status: passing
+    level: pr
+    coverage:
+      - soc_elaboration
+      - board_elaboration
+      - peripheral_elaboration
+  - id: CHIP8-AXI-DIRECTED
+    feature: Directed AXI-Lite register access
+    test: tb_chip8_axi_lite
+    ci_job: verilator-pr
+    artifact: obj/tb_chip8_axi_lite
+    status: passing
+    level: regression
+    coverage:
+      - reset_values
+      - read_write
+      - invalid_access
+      - read_after_write
+  - id: CHIP8-AXI-RANDOM-BACKPRESSURE
+    feature: Random AXI-Lite stalls and channel reordering
+    test: tb_chip8_axi_lite_random
+    ci_job: coverage-nightly
+    artifact: reports/axi/random_backpressure.json
+    status: planned
+    level: nightly
+    coverage:
+      - aw_before_w
+      - w_before_aw
+      - delayed_bready
+      - delayed_rready
+      - reset_during_transaction
+      - simultaneous_read_write
+  - id: CHIP8-CSR-REGTOOL-SOURCE
+    feature: Parseable CSR register source and generated checks
+    test: scripts/quality/gen_validation_report.py
+    ci_job: validation-report
+    artifact: validation/csr/chip8_csr_reset.json
+    status: planned
+    level: regression
+    coverage:
+      - reset_values
+      - access_permissions
+      - reserved_bits_zero
+      - byte_enables
+      - unaligned_access
+  - id: CHIP8-AXI-FORMAL-CONTRACTS
+    feature: AXI safety and liveness formal contracts
+    test: validation/formal/soc/axi/chip8_soc_axi.sby
+    ci_job: formal-nightly
+    artifact: validation/formal/soc/axi/chip8_soc_axi
+    status: passing
+    level: nightly
+    coverage:
+      - no_response_loss
+      - no_response_duplication
+      - invalid_region_error

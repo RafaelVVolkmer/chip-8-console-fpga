@@ -3,6 +3,8 @@ SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
 SPDX-License-Identifier: GPL-3.0-only
 -->
 
+# CHIP-8 Console FPGA
+
 ---
 
 <div align="center">
@@ -52,10 +54,8 @@ interfaces, timers, ROM loading, SD/SPI boot support, debug/DAP logic, CDC
 helpers, board wrappers, formal targets, Verilator simulations, Yosys checks,
 and a Rust validation engine used as an executable reference model.
 
-The RTL follows [VerilogCodingStyle.md](VerilogCodingStyle.md), and the
-validation code follows [DVCodingStyle.md](DVCodingStyle.md). These repository
-copies track the lowRISC SystemVerilog and DV style guides with project-local
-GPL-3.0-only headers and CHIP-8 module documentation. The practical rules used
+The RTL and validation code follow the local methodology documented in
+[`docs/TECHNICAL_NOTES.md`](docs/TECHNICAL_NOTES.md). The practical rules used
 here include two-space indentation, ANSI module declarations, `logic`-based
 SystemVerilog, explicit port connections, `always_ff`/`always_comb`,
 active-low reset suffix `_ni` or `_no`, and input/output suffixes `_i` and
@@ -137,9 +137,7 @@ Useful CHIP-8 references and simulators:
 │   ├── rust/                   # Rust validation engine and CHIP-8 reference model
 │   └── simulation/             # Verilator testbenches and simulation notes
 ├── files.f                     # Portable RTL/testbench file list
-├── Makefile                    # Local verification, synthesis, programming, and cleanup entry point
-├── DVCodingStyle.md            # Project DV and testbench coding standard
-└── VerilogCodingStyle.md       # Project SystemVerilog coding standard
+└── Makefile                    # Local verification, synthesis, programming, and cleanup entry point
 ```
 
 ---

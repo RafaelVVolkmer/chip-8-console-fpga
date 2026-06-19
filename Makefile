@@ -25,6 +25,30 @@ FAMILY ?=
 
 REPORTS ?= reports
 CC ?= cc
+MARKDOWNLINT ?= npx --yes markdownlint-cli2
+LYCHEE ?= lychee
+ACTIONLINT ?= actionlint
+YAMLLINT ?= yamllint
+TAPLO ?= taplo
+TYPOS ?= typos
+SHELLCHECK ?= shellcheck
+SHFMT ?= shfmt
+
+TOML_FILES := \
+	.lychee.toml \
+	.svlint.toml \
+	.typos.toml \
+	REUSE.toml \
+	validation/rust/Cargo.toml \
+	validation/rust/chip8-model/Cargo.toml \
+	validation/rust/.cargo/config.toml \
+	validation/rust/.cargo/nightly-aggressive.toml \
+	validation/rust/rustfmt.toml
+
+LINK_CHECK_FILES := \
+	README.md \
+	docs/**/*.md \
+	validation/simulation/README.md
 
 # ==============================================================================
 # PROGRAMMING / ROM CONFIGURATION
@@ -39,6 +63,9 @@ CHIP8_ROM_MEM ?= validation/programs/chip8/smoke.mem
 CHIP8_ROM_DIR ?= validation/programs/chip8/roms
 CHIP8_ROM_MEM_DIR ?= generated/chip8/roms
 CHIP8_ROM_STEPS ?= 2500
+CHIP8_FUZZ_ROM_DIR ?= generated/chip8/fuzz
+CHIP8_FUZZ_SEEDS ?= 16
+CHIP8_FUZZ_OPCODES ?= 128
 
 # ==============================================================================
 # BOARD DATABASE
@@ -132,7 +159,8 @@ CLEAN_DIRS := \
 	db
 
 CLEAN_EXPLICIT_FILES := \
-	$(CHIP8_ROM_MEM)
+	$(CHIP8_ROM_MEM) \
+	validation/programs/chip8/*.mem
 
 CLEAN_FIND_DIRS := \
 	__pycache__ \
@@ -157,6 +185,8 @@ CLEAN_FILES := \
 	*.gcda \
 	*.gcno \
 	*.gcov \
+	*.profraw \
+	*.profdata \
 	*.jou \
 	*.log \
 	*.rpt \
@@ -192,8 +222,12 @@ CLEAN_FILES := \
 	*.wit \
 	*.aiw \
 	*.cex \
+	.coverage \
 	coverage.dat \
+	coverage.xml \
+	lcov.info \
 	results.xml \
+	junit.xml \
 	cocotb_results.xml \
 	transcript \
 	vsim.wlf
@@ -203,16 +237,35 @@ CLEAN_FILES := \
 # ==============================================================================
 
 .PHONY: \
-	all check quick-check regression full-regression toolcheck reuse-check \
-	check-conf conf \
-	axi-lint axi-sim axi-check tang-nano-9k-check \
+	all check quick-check pr-regression regression full-regression \
+	ci-pr ci-verilator-pr ci-nightly ci-formal-nightly \
+	ci-coverage-nightly ci-board-synth-weekly ci-signoff \
+	toolcheck reuse-check \
+	lint-all lint-config lint-reuse lint-markdown lint-yaml lint-actions \
+	lint-toml lint-json lint-shellcheck lint-shfmt lint-shell lint-typos \
+	lint-links lint-verilator lint-verilator-core lint-verilator-axi \
+	lint-svlint check-conf conf testplan-check validation-report \
+	validation-infra-check cocotb-check csr-check \
+	lockstep-plan fuzz-roms board-smoke board-smoke-all \
+	board-smoke-tang-nano-9k board-smoke-artix-a7 board-smoke-cyclone-v \
+	board-smoke-tang-nano-9k-program \
+	axi-lint axi-sim tb-chip8-axi-lite-sim tb-chip8-keypad-remote-core-sim \
+	tb-chip8-video-remote-core-sim tb-tang-nano-9k-top-sim \
+	tb-chip8-boot-pipeline-sim tb-chip8-dap-protocol-sim \
+	axi-check tang-nano-9k-check \
 	tang-nano-9k-synth tang-nano-9k-program-sram \
 	tang-nano-9k-program-flash boot-pipeline-sim \
 	software-check rust-fmt rust-check rust-clippy rust-test rust-doc \
 	rust-release rust-nightly-aggressive rust-validation ffi-test \
 	lint sim chip8-rom chip8-components-sim chip8-blocks-sim \
 	chip8-sim chip8-roms-sim yosys synth-check synthesis \
-	synthesis-yosys formal formal-syntax formal-cover coverage \
+	synthesis-yosys synthesis-core-yosys synthesis-soc-axi-yosys \
+	synthesis-tang-nano-9k-yosys \
+	formal formal-chip8-protocol-blocks formal-chip8-blocks \
+	formal-chip8-components formal-chip8-top formal-chip8-boot-pipeline \
+	formal-chip8-soc-axi formal-chip8-keypad formal-chip8-video \
+	formal-tang-nano-9k formal-syntax formal-cover formal-cover-chip8 \
+	coverage \
 	board-synth board-program xilinx-synth intel-synth \
 	vivado-synth quartus-synth usb-dap-id usb-dap-load-rom clean
 
@@ -222,12 +275,14 @@ CLEAN_FILES := \
 
 all: check
 
-check: reuse-check full-regression synthesis coverage check-conf
+check: lint-all full-regression synthesis coverage
 
-quick-check: \
+quick-check: lint-all pr-regression
+
+pr-regression: \
 	toolcheck \
+	validation-infra-check \
 	software-check \
-	lint \
 	chip8-components-sim \
 	chip8-blocks-sim \
 	chip8-sim \
@@ -235,11 +290,34 @@ quick-check: \
 	yosys \
 	axi-check \
 	tang-nano-9k-check \
+	validation-report \
 	formal-syntax
 
-regression: quick-check chip8-roms-sim formal
+regression: pr-regression chip8-roms-sim formal
 
 full-regression: regression formal-cover
+
+ci-pr: quick-check fuzz-roms
+
+ci-verilator-pr: \
+	validation-infra-check \
+	lint-verilator \
+	chip8-components-sim \
+	chip8-blocks-sim \
+	chip8-sim \
+	axi-sim \
+	fuzz-roms \
+	validation-report
+
+ci-nightly: lint-all regression fuzz-roms coverage validation-report
+
+ci-formal-nightly: formal formal-cover validation-report
+
+ci-coverage-nightly: chip8-rom fuzz-roms coverage validation-report
+
+ci-board-synth-weekly: board-smoke-all tang-nano-9k-check validation-report
+
+ci-signoff: check board-smoke-all validation-report
 
 # ==============================================================================
 # TOOLCHAIN CHECKS
@@ -253,11 +331,102 @@ toolcheck:
 	@command -v sby >/dev/null || exit 127
 	@command -v reuse >/dev/null || exit 127
 
-reuse-check:
+lint-all: \
+	lint-reuse \
+	lint-markdown \
+	lint-yaml \
+	lint-actions \
+	lint-toml \
+	lint-json \
+	lint-shell \
+	lint-typos \
+	lint-links \
+	lint-verilator \
+	lint-svlint
+
+reuse-check lint-reuse:
 	reuse lint
 
-check-conf conf:
+check-conf conf lint-config:
 	bash scripts/quality/check_conf.sh
+
+lint-markdown:
+	$(MARKDOWNLINT) \
+		'**/*.md' \
+		'#generated/**' \
+		'#reports/**' \
+		'#validation/rust/target/**'
+
+lint-yaml:
+	$(YAMLLINT) .github/workflows .markdownlint.yml .yamllint.yml
+
+lint-actions:
+	$(ACTIONLINT) -color
+
+lint-toml:
+	$(TAPLO) lint $(TOML_FILES)
+	$(TAPLO) format --check $(TOML_FILES)
+
+lint-json:
+	find . \
+		\( -path './.git' \
+		-o -path './build' \
+		-o -path './generated' \
+		-o -path './obj' \
+		-o -path './reports' \
+		-o -path './validation/rust/target' \
+		-o -path './validation/formal/core/chip8_blocks' \
+		-o -path './validation/formal/core/chip8_components' \
+		-o -path './validation/formal/core/chip8_top' \
+		-o -path './validation/formal/coverage/chip8_cover' \
+		-o -path './validation/formal/protocol/chip8_protocol_blocks' \
+		-o -path './validation/formal/soc/axi/chip8_boot_pipeline' \
+		-o -path './validation/formal/soc/axi/chip8_soc_axi' \
+		-o -path './validation/formal/soc/keypad/chip8_keypad' \
+		-o -path './validation/formal/soc/video/chip8_video' \
+		-o -path './validation/formal/boards/tang_nano_9k/tang_nano_9k' \
+		\) -prune \
+		-o -type f -name '*.json' -print0 | xargs -0 -r -n 1 jq empty
+
+lint-shell: lint-shellcheck lint-shfmt
+
+lint-shellcheck:
+	find scripts -type f -name '*.sh' -print0 | xargs -0 -r $(SHELLCHECK)
+
+lint-shfmt:
+	find scripts -type f -name '*.sh' -print0 | xargs -0 -r $(SHFMT) -d -i 4 -ci
+
+lint-typos:
+	$(TYPOS)
+
+lint-links:
+	$(LYCHEE) --config .lychee.toml $(LINK_CHECK_FILES)
+
+testplan-check:
+	python3 scripts/quality/gen_validation_report.py --check
+
+validation-report:
+	python3 scripts/quality/gen_validation_report.py
+
+validation-infra-check: testplan-check cocotb-check csr-check lockstep-plan
+
+cocotb-check:
+	find validation/cocotb -name '*.py' -print0 | xargs -0 -n 1 \
+		python3 -c 'import ast,pathlib,sys; ast.parse(pathlib.Path(sys.argv[1]).read_text())'
+
+csr-check:
+	test -f validation/csr/chip8_soc_regs.yml
+	test -f validation/csr/chip8_csr_reset.json
+
+lockstep-plan:
+	test -f validation/lockstep/README.md
+	test -f validation/lockstep/trace_schema.json
+
+fuzz-roms:
+	python3 scripts/simulation/gen_fuzz_roms.py \
+		--out-dir $(CHIP8_FUZZ_ROM_DIR) \
+		--seeds $(CHIP8_FUZZ_SEEDS) \
+		--opcodes $(CHIP8_FUZZ_OPCODES)
 
 # ==============================================================================
 # SOFTWARE VALIDATION
@@ -310,9 +479,17 @@ ffi-test:
 # RTL LINT / SIMULATION
 # ==============================================================================
 
-lint:
+lint: lint-verilator lint-svlint
+
+lint-verilator: lint-verilator-core lint-verilator-axi
+
+lint-verilator-core:
 	bash scripts/verification/verilator_lint.sh
+
+lint-verilator-axi:
 	bash scripts/verification/verilator_axi_lint.sh
+
+lint-svlint:
 	@if command -v svlint >/dev/null 2>&1; then \
 		svlint -f $(FILES); \
 	else \
@@ -351,33 +528,47 @@ chip8-roms-sim:
 # AXI / SOC VALIDATION
 # ==============================================================================
 
-axi-lint:
-	bash scripts/verification/verilator_axi_lint.sh
+axi-lint: lint-verilator-axi
 
-axi-sim:
+tb-chip8-axi-lite-sim:
 	TOP=tb_chip8_axi_lite \
 	MDIR=obj/tb_chip8_axi_lite \
 	bash scripts/simulation/verilator_sim.sh
+
+tb-chip8-keypad-remote-core-sim:
 	TOP=tb_chip8_keypad_remote_core \
 	MDIR=obj/tb_chip8_keypad_remote_core \
 	bash scripts/simulation/verilator_sim.sh
+
+tb-chip8-video-remote-core-sim:
 	TOP=tb_chip8_video_remote_core \
 	MDIR=obj/tb_chip8_video_remote_core \
 	bash scripts/simulation/verilator_sim.sh
+
+tb-tang-nano-9k-top-sim:
 	TOP=tb_tang_nano_9k_top \
 	MDIR=obj/tb_tang_nano_9k_top \
 	bash scripts/simulation/verilator_sim.sh
+
+tb-chip8-boot-pipeline-sim:
 	TOP=tb_chip8_boot_pipeline \
 	MDIR=obj/tb_chip8_boot_pipeline \
 	bash scripts/simulation/verilator_sim.sh
+
+tb-chip8-dap-protocol-sim:
 	TOP=tb_chip8_dap_protocol \
 	MDIR=obj/tb_chip8_dap_protocol \
 	bash scripts/simulation/verilator_sim.sh
 
-boot-pipeline-sim:
-	TOP=tb_chip8_boot_pipeline \
-	MDIR=obj/tb_chip8_boot_pipeline \
-	bash scripts/simulation/verilator_sim.sh
+axi-sim: \
+	tb-chip8-axi-lite-sim \
+	tb-chip8-keypad-remote-core-sim \
+	tb-chip8-video-remote-core-sim \
+	tb-tang-nano-9k-top-sim \
+	tb-chip8-boot-pipeline-sim \
+	tb-chip8-dap-protocol-sim
+
+boot-pipeline-sim: tb-chip8-boot-pipeline-sim
 
 axi-check:
 	mkdir -p $(REPORTS)
@@ -411,12 +602,23 @@ yosys synth-check:
 	yosys -s scripts/verification/yosys_check.ys \
 		| tee $(REPORTS)/yosys_check.log
 
-synthesis synthesis-yosys:
+synthesis synthesis-yosys: \
+	synthesis-core-yosys \
+	synthesis-soc-axi-yosys \
+	synthesis-tang-nano-9k-yosys
+
+synthesis-core-yosys:
 	mkdir -p $(REPORTS)
 	yosys -s scripts/synthesis/yosys_synth.ys \
 		| tee $(REPORTS)/yosys_synth.log
+
+synthesis-soc-axi-yosys:
+	mkdir -p $(REPORTS)
 	yosys -s scripts/verification/yosys_soc_axi_check.ys \
 		| tee $(REPORTS)/yosys_soc_axi_synth_check.log
+
+synthesis-tang-nano-9k-yosys:
+	mkdir -p $(REPORTS)
 	yosys -s scripts/verification/yosys_tang_nano_9k_check.ys \
 		| tee $(REPORTS)/yosys_tang_nano_9k_synth_check.log
 
@@ -424,19 +626,48 @@ synthesis synthesis-yosys:
 # FORMAL VERIFICATION
 # ==============================================================================
 
-formal:
-	@set -e; \
-	for target in $(FORMAL_TARGETS); do \
-		echo "==> sby -f $$target"; \
-		sby -f $$target; \
-	done
+formal: \
+	formal-chip8-protocol-blocks \
+	formal-chip8-blocks \
+	formal-chip8-components \
+	formal-chip8-top \
+	formal-chip8-boot-pipeline \
+	formal-chip8-soc-axi \
+	formal-chip8-keypad \
+	formal-chip8-video \
+	formal-tang-nano-9k
 
-formal-cover:
-	@set -e; \
-	for target in $(FORMAL_COVER_TARGETS); do \
-		echo "==> sby -f $$target"; \
-		sby -f $$target; \
-	done
+formal-chip8-protocol-blocks:
+	sby -f validation/formal/protocol/chip8_protocol_blocks.sby
+
+formal-chip8-blocks:
+	sby -f validation/formal/core/chip8_blocks.sby
+
+formal-chip8-components:
+	sby -f validation/formal/core/chip8_components.sby
+
+formal-chip8-top:
+	sby -f validation/formal/core/chip8_top.sby
+
+formal-chip8-boot-pipeline:
+	sby -f validation/formal/soc/axi/chip8_boot_pipeline.sby
+
+formal-chip8-soc-axi:
+	sby -f validation/formal/soc/axi/chip8_soc_axi.sby
+
+formal-chip8-keypad:
+	sby -f validation/formal/soc/keypad/chip8_keypad.sby
+
+formal-chip8-video:
+	sby -f validation/formal/soc/video/chip8_video.sby
+
+formal-tang-nano-9k:
+	sby -f validation/formal/boards/tang_nano_9k/tang_nano_9k.sby
+
+formal-cover: formal-cover-chip8
+
+formal-cover-chip8:
+	sby -f validation/formal/coverage/chip8_cover.sby
 
 formal-syntax:
 	yosys -q -s validation/formal/core/chip8_top_syntax.ys
@@ -508,6 +739,38 @@ usb-dap-load-rom:
 		--baud $(BAUD) \
 		load-rom $(CHIP8_ROM)
 
+board-smoke:
+	test -n "$(BOARD)"
+	PORT=$(PORT) \
+	BAUD=$(BAUD) \
+	BITSTREAM=$(SELECTED_BITSTREAM) \
+	CHIP8_ROM=$(CHIP8_ROM) \
+	BOARD_LOADER=$(SELECTED_LOADER) \
+	BOARD=$(BOARD) \
+	bash scripts/board/board_smoke.sh
+
+board-smoke-tang-nano-9k:
+	$(MAKE) board-smoke BOARD=tang_nano_9k
+
+board-smoke-artix-a7:
+	$(MAKE) board-smoke BOARD=artix_a7
+
+board-smoke-cyclone-v:
+	$(MAKE) board-smoke BOARD=cyclone_v
+
+board-smoke-all: board-smoke-tang-nano-9k board-smoke-artix-a7 board-smoke-cyclone-v
+
+board-smoke-tang-nano-9k-program:
+	PORT=$(PORT) \
+	BAUD=$(BAUD) \
+	BITSTREAM=$(BOARD_BITSTREAM_tang_nano_9k) \
+	CHIP8_ROM=$(CHIP8_ROM) \
+	BOARD_LOADER=$(BOARD_LOADER_tang_nano_9k) \
+	BOARD=tang_nano_9k \
+	PROGRAM=1 \
+	DAP=1 \
+	bash scripts/board/board_smoke.sh
+
 # ==============================================================================
 # CLEANUP
 # ==============================================================================
@@ -515,11 +778,15 @@ usb-dap-load-rom:
 clean:
 	rm -rf $(CLEAN_DIRS)
 	rm -f $(CLEAN_EXPLICIT_FILES)
-	find . -maxdepth 3 -type f \( \
+	find . \
+		\( -path './.git' -o -path './LICENSES' \) -prune \
+		-o -type f \( \
 		$(foreach f,$(CLEAN_FILES),-name '$(f)' -o) \
 		-false \
-		\) -delete
-	find . -maxdepth 4 -type d \( \
+		\) -exec rm -f {} +
+	find . \
+		\( -path './.git' -o -path './LICENSES' \) -prune \
+		-o -type d \( \
 		$(foreach d,$(CLEAN_FIND_DIRS),-name '$(d)' -o) \
 		-false \
 		\) -prune -exec rm -rf {} +

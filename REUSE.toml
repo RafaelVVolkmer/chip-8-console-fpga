@@ -28,6 +28,8 @@ path = [
   "validation/programs/chip8/roms/**",
   "validation/programs/chip8/smoke.ch8",
   "validation/programs/chip8/**.mem",
+  "validation/lockstep/trace_schema.json",
+  "validation/csr/chip8_csr_reset.json",
   "validation/rust/Cargo.lock",
   "validation/rust/target/**",
   "docs/**:Zone.Identifier",

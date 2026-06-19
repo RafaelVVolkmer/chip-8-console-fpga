@@ -1,0 +1,63 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+---
+name: Board synth weekly
+
+on:
+  schedule:
+    - cron: '23 4 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: board-synth-weekly-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  board-smoke:
+    name: Board smoke preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        board: [tang_nano_9k, artix_a7, cyclone_v]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run board smoke preflight
+        run: make board-smoke BOARD=${{ matrix.board }}
+
+      - name: Upload board smoke report
+        uses: actions/upload-artifact@v4
+        with:
+          name: board-smoke-${{ matrix.board }}
+          path: reports/board
+
+  yosys-board-checks:
+    name: Open-source board synthesis checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Yosys
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y yosys
+
+      - name: Run open-source board checks
+        run: make tang-nano-9k-check validation-report
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: board-yosys-reports
+          path: reports

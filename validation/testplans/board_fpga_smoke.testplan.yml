@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+suite: board_fpga_smoke
+owner: board-validation
+description: FPGA board smoke preflight and physical board-in-the-loop hooks.
+testpoints:
+  - id: CHIP8-BOARD-SMOKE-TANG-NANO-9K
+    feature: Tang Nano 9K board smoke preflight and optional DAP load
+    test: make board-smoke-tang-nano-9k
+    ci_job: board-synth-weekly
+    artifact: reports/board/tang_nano_9k_smoke.json
+    status: passing
+    level: nightly
+    coverage:
+      - board_preflight
+      - loader_selection
+      - smoke_rom_available
+      - optional_programming
+      - optional_dap_rom_load
+  - id: CHIP8-BOARD-SMOKE-ARTIX-A7
+    feature: Artix A7 board smoke preflight
+    test: make board-smoke-artix-a7
+    ci_job: board-synth-weekly
+    artifact: reports/board/artix_a7_smoke.json
+    status: passing
+    level: nightly
+    coverage:
+      - board_preflight
+      - loader_selection
+      - smoke_rom_available
+      - optional_programming
+  - id: CHIP8-BOARD-SMOKE-CYCLONE-V
+    feature: Cyclone V board smoke preflight
+    test: make board-smoke-cyclone-v
+    ci_job: board-synth-weekly
+    artifact: reports/board/cyclone_v_smoke.json
+    status: passing
+    level: nightly
+    coverage:
+      - board_preflight
+      - loader_selection
+      - smoke_rom_available
+      - optional_programming

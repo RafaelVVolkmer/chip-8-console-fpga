@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+suite: ci_levels
+levels:
+  - name: pr
+    command: make quick-check testplan-check validation-report
+    seeds: 0
+    coverage_merge: false
+  - name: nightly
+    command: make regression coverage validation-report
+    seeds: 0..99
+    coverage_merge: true
+  - name: signoff
+    command: make full-regression board-smoke-all validation-report
+    seeds: all
+    coverage_merge: true

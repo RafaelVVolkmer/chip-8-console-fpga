@@ -499,6 +499,113 @@ mod tests {
     }
 
     #[test]
+    fn property_pc_stays_even_and_in_range() {
+        let mut report = ValidationReport::default();
+        let mut rng = 0x0bad_cafe;
+        for _ in 0..2048 {
+            let mut chip = Chip8::default();
+            let opcode = 0x6000 | u16::from(lcg_next(&mut rng));
+            let _ = chip.exec(opcode);
+            chip8_check!(report, chip.pc <= 0x0fff);
+            chip8_check_eq!(report, chip.pc & 1, 0);
+        }
+        report.assert_clean();
+    }
+
+    #[test]
+    fn property_stack_depth_is_bounded() {
+        let mut report = ValidationReport::default();
+        let mut chip = Chip8::default();
+        for idx in 0..64 {
+            let _ = chip.exec(0x2200 | (idx & 0x0ff));
+            chip8_check!(report, chip.sp < 16);
+        }
+        for _ in 0..64 {
+            let _ = chip.exec(0x00ee);
+            chip8_check!(report, chip.sp < 16);
+        }
+        report.assert_clean();
+    }
+
+    #[test]
+    fn property_draw_never_writes_outside_framebuffer() {
+        let mut report = ValidationReport::default();
+        for x in [0, 1, 62, 63, 64, 127, 255] {
+            for y in [0, 1, 30, 31, 32, 127, 255] {
+                let mut chip = Chip8::default();
+                chip.v[0] = x;
+                chip.v[1] = y;
+                chip.i = 0x300;
+                chip.mem[0x300] = 0xff;
+                chip.mem[0x301] = 0x81;
+                chip8_check!(report, chip.exec(0xd012));
+                chip8_check!(report, chip.lit_pixels() <= FB_SIZE as u32);
+            }
+        }
+        report.assert_clean();
+    }
+
+    #[test]
+    fn property_timers_saturate_at_zero() {
+        let mut report = ValidationReport::default();
+        for start in 0u8..=u8::MAX {
+            let mut chip = Chip8::default();
+            chip.delay = start;
+            chip.sound = start;
+            for _ in 0..300 {
+                let _ = chip.step();
+                chip8_check!(report, chip.delay <= start);
+                chip8_check!(report, chip.sound <= start);
+            }
+            chip8_check_eq!(report, chip.delay, 0);
+            chip8_check_eq!(report, chip.sound, 0);
+        }
+        report.assert_clean();
+    }
+
+    #[test]
+    fn property_bcd_digits_are_decimal_and_reconstruct_value() {
+        let mut report = ValidationReport::default();
+        for value in u8::MIN..=u8::MAX {
+            let mut chip = Chip8::default();
+            chip.i = 0x300;
+            chip.v[3] = value;
+            let _ = chip.exec(0xf333);
+            let hundreds = chip.mem[0x300];
+            let tens = chip.mem[0x301];
+            let units = chip.mem[0x302];
+            chip8_check!(report, hundreds < 10);
+            chip8_check!(report, tens < 10);
+            chip8_check!(report, units < 10);
+            chip8_check_eq!(report, hundreds * 100 + tens * 10 + units, value);
+        }
+        report.assert_clean();
+    }
+
+    #[test]
+    fn property_carry_and_borrow_flags_match_arithmetic() {
+        let mut report = ValidationReport::default();
+        for a in u8::MIN..=u8::MAX {
+            for b in u8::MIN..=u8::MAX {
+                let mut add_chip = Chip8::default();
+                add_chip.v[1] = a;
+                add_chip.v[2] = b;
+                let (_, add_carry) = a.overflowing_add(b);
+                let _ = add_chip.exec(0x8124);
+                chip8_check_eq!(report, add_chip.v[0xf], add_carry as u8);
+
+                let mut sub_chip = Chip8::default();
+                sub_chip.v[1] = a;
+                sub_chip.v[2] = b;
+                let (_, sub_borrow) = a.overflowing_sub(b);
+                let _ = sub_chip.exec(0x8125);
+                chip8_check_eq!(report, sub_chip.v[0xf], (!sub_borrow) as u8);
+            }
+        }
+        report.assert_clean();
+    }
+
+    #[test]
     fn full_validation_suite_has_high_case_count() {
         let report = run_validation_suite(128);
         report.assert_clean();

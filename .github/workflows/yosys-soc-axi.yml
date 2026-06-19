@@ -30,4 +30,4 @@ jobs:
           sudo apt-get install --no-install-recommends -y yosys
 
       - name: Run AXI SoC Yosys check
-        run: yosys -q scripts/verification/yosys_soc_axi_check.ys
+        run: make axi-check

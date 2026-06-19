@@ -26,7 +26,6 @@ run_lint() {
     shift
     verilator \
         --lint-only \
-        --timing \
         -Wall \
         "${warn_args[@]}" \
         -Irtl \
@@ -36,10 +35,12 @@ run_lint() {
 }
 
 run_lint chip8_top
-run_lint tb_chip8_top validation/simulation/core/tb_chip8_top.sv
+run_lint tb_chip8_top --timing validation/simulation/core/tb_chip8_top.sv
 run_lint tb_chip8_components \
+    --timing \
     validation/simulation/core/tb_chip8_components.sv
 run_lint tb_chip8_blocks_exhaustive \
+    --timing \
     validation/simulation/core/tb_chip8_blocks_exhaustive.sv
 
 # EOF

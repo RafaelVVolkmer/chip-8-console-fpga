@@ -30,4 +30,4 @@ jobs:
         run: python -m pip install --disable-pip-version-check 'yamllint==1.38.0'
 
       - name: Run yamllint
-        run: yamllint .github/workflows .markdownlint.yml .yamllint.yml
+        run: make lint-yaml
