@@ -303,6 +303,8 @@ openFPGALoader.log
 
 *.sby/
 sby-*/
+validation/formal/**/chip8_*/
+validation/formal/boards/tang_nano_9k/tang_nano_9k/
 engine_*/
 status
 model/
