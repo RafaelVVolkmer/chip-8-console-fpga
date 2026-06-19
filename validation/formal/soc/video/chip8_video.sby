@@ -1,0 +1,24 @@
+[options]
+mode prove
+depth 8
+
+[engines]
+smtbmc
+
+[script]
+read -formal -sv \
+    chip8_axi_pkg.sv \
+    chip8_video_dma_reader.sv \
+    chip8_video_regs.sv \
+    chip8_dma2d_engine.sv \
+    chip8_dcmipp_pipeline.sv \
+    chip8_video_formal.sv
+prep -top chip8_video_formal
+
+[files]
+rtl/soc/bus/chip8_axi_pkg.sv
+rtl/soc/dma/chip8_video_dma_reader.sv
+rtl/soc/peripherals/video/chip8_video_regs.sv
+rtl/soc/peripherals/video/chip8_dma2d_engine.sv
+rtl/soc/peripherals/video/chip8_dcmipp_pipeline.sv
+validation/formal/soc/video/chip8_video_formal.sv

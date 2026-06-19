@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+[options]
+mode bmc
+depth 8
+
+[engines]
+smtbmc yices
+
+[script]
+read -formal -D FORMAL -sv \
+    chip8_sync_2ff.sv \
+    chip8_async_fifo.sv \
+    chip8_sync_fifo.sv \
+    chip8_skid_buffer.sv \
+    chip8_crc16_ccitt.sv \
+    chip8_rom_chunk_writer.sv \
+    chip8_protocol_blocks_formal.sv
+prep -top chip8_protocol_blocks_formal
+
+[files]
+rtl/lib/common/cdc/chip8_sync_2ff.sv
+rtl/lib/common/cdc/chip8_async_fifo.sv
+rtl/lib/common/fifo/chip8_sync_fifo.sv
+rtl/lib/common/fifo/chip8_skid_buffer.sv
+rtl/lib/common/crc/chip8_crc16_ccitt.sv
+rtl/soc/storage/boot/chip8_rom_chunk_writer.sv
+validation/formal/protocol/chip8_protocol_blocks_formal.sv

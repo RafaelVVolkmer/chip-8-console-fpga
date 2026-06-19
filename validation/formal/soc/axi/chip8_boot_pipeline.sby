@@ -1,0 +1,22 @@
+[options]
+mode bmc
+depth 4
+
+[engines]
+smtbmc yices
+
+[script]
+read -formal -sv \
+    chip8_sd_crc7.sv \
+    chip8_sd_crc16.sv \
+    chip8_sd_spi_host.sv \
+    chip8_bootloader.sv \
+    chip8_boot_pipeline_formal.sv
+prep -top chip8_boot_pipeline_formal
+
+[files]
+rtl/soc/storage/chip8_sd_crc7.sv
+rtl/soc/storage/chip8_sd_crc16.sv
+rtl/soc/storage/chip8_sd_spi_host.sv
+rtl/soc/storage/chip8_bootloader.sv
+validation/formal/soc/axi/chip8_boot_pipeline_formal.sv

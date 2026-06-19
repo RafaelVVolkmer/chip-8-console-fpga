@@ -1,0 +1,24 @@
+[options]
+mode prove
+depth 8
+
+[engines]
+smtbmc
+
+[script]
+read -formal -sv \
+    chip8_key_debounce.sv \
+    chip8_keypad_matrix_4x4.sv \
+    chip8_keypad_dma.sv \
+    chip8_keypad_regs.sv \
+    chip8_keypad_remote_core.sv \
+    chip8_keypad_formal.sv
+prep -top chip8_keypad_formal
+
+[files]
+rtl/core/chip8/input/chip8_key_debounce.sv
+rtl/soc/dma/chip8_keypad_dma.sv
+rtl/soc/peripherals/keypad/chip8_keypad_matrix_4x4.sv
+rtl/soc/peripherals/keypad/chip8_keypad_regs.sv
+rtl/soc/peripherals/keypad/chip8_keypad_remote_core.sv
+validation/formal/soc/keypad/chip8_keypad_formal.sv

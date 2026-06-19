@@ -1,0 +1,113 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+[options]
+mode prove
+depth 4
+
+[engines]
+smtbmc
+
+[script]
+read -formal -sv \
+  chip8_pkg.sv \
+  chip8_config_pkg.sv \
+  chip8_types_pkg.sv \
+  chip8_isa_pkg.sv \
+  chip8_memmap_pkg.sv \
+  chip8_alu_pkg.sv \
+  chip8_core_pkg.sv \
+  chip8_mem_pkg.sv \
+  chip8_display_pkg.sv \
+  chip8_periph_pkg.sv \
+  chip8_skid_buffer.sv \
+  chip8_prefetch_queue.sv \
+  chip8_fetch.sv \
+  chip8_decode.sv \
+  chip8_control.sv \
+  chip8_datapath.sv \
+  chip8_skip_unit.sv \
+  chip8_alu.sv \
+  chip8_bcd.sv \
+  chip8_bcd_writer.sv \
+  chip8_draw_sequencer.sv \
+  chip8_mem_burst.sv \
+  chip8_regfile.sv \
+  chip8_stack.sv \
+  chip8_rng.sv \
+  chip8_debug_regs.sv \
+  chip8_font_rom.sv \
+  chip8_ram.sv \
+  chip8_memory_map.sv \
+  chip8_rom_loader.sv \
+  chip8_mem_arbiter.sv \
+  chip8_memory.sv \
+  chip8_framebuffer.sv \
+  chip8_display_controller.sv \
+  chip8_sprite_blitter.sv \
+  chip8_collision_unit.sv \
+  chip8_timer_60hz.sv \
+  chip8_delay_timer.sv \
+  chip8_sound_timer.sv \
+  chip8_timer.sv \
+  chip8_key_sync.sv \
+  chip8_key_debounce.sv \
+  chip8_wait_key_unit.sv \
+  chip8_keypad.sv \
+  chip8_io_mux.sv \
+  chip8_core.sv \
+  chip8_native_soc.sv \
+  chip8_core_top.sv \
+  chip8_top_formal.sv
+prep -top chip8_top_formal
+
+[files]
+rtl/core/chip8/pkg/chip8_pkg.sv
+rtl/core/chip8/pkg/chip8_config_pkg.sv
+rtl/core/chip8/pkg/chip8_types_pkg.sv
+rtl/core/chip8/pkg/chip8_isa_pkg.sv
+rtl/core/chip8/pkg/chip8_memmap_pkg.sv
+rtl/core/chip8/pkg/chip8_alu_pkg.sv
+rtl/core/chip8/pkg/chip8_core_pkg.sv
+rtl/core/chip8/pkg/chip8_mem_pkg.sv
+rtl/core/chip8/pkg/chip8_display_pkg.sv
+rtl/core/chip8/pkg/chip8_periph_pkg.sv
+rtl/lib/common/fifo/chip8_skid_buffer.sv
+rtl/core/chip8/cpu/chip8_prefetch_queue.sv
+rtl/core/chip8/cpu/chip8_fetch.sv
+rtl/core/chip8/cpu/chip8_decode.sv
+rtl/core/chip8/cpu/chip8_control.sv
+rtl/core/chip8/cpu/chip8_datapath.sv
+rtl/core/chip8/cpu/chip8_skip_unit.sv
+rtl/core/chip8/cpu/chip8_alu.sv
+rtl/core/chip8/cpu/chip8_bcd.sv
+rtl/core/chip8/cpu/chip8_bcd_writer.sv
+rtl/core/chip8/cpu/chip8_draw_sequencer.sv
+rtl/core/chip8/cpu/chip8_mem_burst.sv
+rtl/core/chip8/cpu/chip8_regfile.sv
+rtl/core/chip8/cpu/chip8_stack.sv
+rtl/core/chip8/cpu/chip8_rng.sv
+rtl/core/chip8/debug/chip8_debug_regs.sv
+rtl/core/chip8/memory/chip8_font_rom.sv
+rtl/core/chip8/memory/chip8_ram.sv
+rtl/core/chip8/memory/chip8_memory_map.sv
+rtl/core/chip8/memory/chip8_rom_loader.sv
+rtl/core/chip8/memory/chip8_mem_arbiter.sv
+rtl/core/chip8/memory/chip8_memory.sv
+rtl/core/chip8/video/chip8_framebuffer.sv
+rtl/core/chip8/video/chip8_display_controller.sv
+rtl/core/chip8/video/chip8_sprite_blitter.sv
+rtl/core/chip8/video/chip8_collision_unit.sv
+rtl/core/chip8/timers/chip8_timer_60hz.sv
+rtl/core/chip8/timers/chip8_delay_timer.sv
+rtl/core/chip8/timers/chip8_sound_timer.sv
+rtl/core/chip8/timers/chip8_timer.sv
+rtl/core/chip8/input/chip8_key_sync.sv
+rtl/core/chip8/input/chip8_key_debounce.sv
+rtl/core/chip8/input/chip8_wait_key_unit.sv
+rtl/core/chip8/input/chip8_keypad.sv
+rtl/core/chip8/bus/chip8_io_mux.sv
+rtl/core/chip8/cpu/chip8_core.sv
+rtl/soc/chip8_native_soc.sv
+rtl/core/chip8/top/chip8_core_top.sv
+validation/formal/core/chip8_top_formal.sv
