@@ -379,7 +379,6 @@ gowin_dtemp/
 db/
 incremental_db/
 output_files/
-simulation/
 greybox_tmp/
 *.qws
 *.smsg
