@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-FileCopyrightText: 2026 Rafael V. Volkmer
+// <rafael.v.volkmer@gmail.com>
+//
+// Tang Nano 9K CST template.
+// Fill exact pins from the Sipeed schematic / your display mezzanine
+// revision.
+// Keep HDMI and LCD constraints in separate concrete .cst files if bank
+// voltage conflicts.
+//
+// Example shape only:
+// IO_LOC "clk_27mhz_i" <PIN>;
+// IO_PORT "clk_27mhz_i" IO_TYPE=LVCMOS33;
+// IO_LOC "reset_button_ni" <PIN>;
+// IO_PORT "reset_button_ni" IO_TYPE=LVCMOS33;

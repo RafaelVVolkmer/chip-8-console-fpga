@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-FileCopyrightText: 2026 Rafael V. Volkmer
+// <rafael.v.volkmer@gmail.com>
+//
+// Custom USB/JTAG FPGA carrier constraint template.
+// Replace every placeholder with the board revision pinout.
+
+// Clock and reset.
+// IO_LOC "clk_i" <PIN>;
+// IO_PORT "clk_i" IO_TYPE=LVCMOS33;
+// IO_LOC "rst_ni" <PIN>;
+// IO_PORT "rst_ni" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+
+// USB-CDC UART from the board USB bridge.
+// IO_LOC "usb_uart_rx_i" <PIN>;
+// IO_LOC "usb_uart_tx_o" <PIN>;
+// IO_PORT "usb_uart_rx_i" IO_TYPE=LVCMOS33;
+// IO_PORT "usb_uart_tx_o" IO_TYPE=LVCMOS33;
+
+// Keep FPGA configuration JTAG on the dedicated JTAG path.
+// Do not route JTAG through this RTL bridge.
+
+// EOF
