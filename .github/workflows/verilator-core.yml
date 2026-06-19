@@ -19,15 +19,21 @@ jobs:
   verilator-core:
     name: Core RTL and core testbench lint
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
+    env:
+      VERILATOR_VERSION: v5.048
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Cache Verilator
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/verilator-${{ env.VERILATOR_VERSION }}
+          key: verilator-${{ runner.os }}-${{ env.VERILATOR_VERSION }}
+
       - name: Install Verilator
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y verilator
+        run: scripts/ci/install_verilator.sh
 
       - name: Run core Verilator lint
         run: make lint-verilator-core

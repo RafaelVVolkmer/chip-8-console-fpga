@@ -52,18 +52,18 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Install lint CLIs
-        run: |
-          cargo install taplo-cli --locked
-          cargo install typos-cli --locked
-          cargo install lychee --locked
-          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
-          go install mvdan.cc/sh/v3/cmd/shfmt@v3.10.0
-
       - name: Cache Cargo artifacts
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: validation/rust -> target
+
+      - name: Install lint CLIs
+        run: |
+          scripts/ci/install_cargo_cli.sh taplo-cli taplo 0.10.0
+          scripts/ci/install_cargo_cli.sh typos-cli typos
+          scripts/ci/install_cargo_cli.sh lychee lychee
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+          go install mvdan.cc/sh/v3/cmd/shfmt@v3.10.0
 
       - name: Run full sign-off
         run: make ci-signoff

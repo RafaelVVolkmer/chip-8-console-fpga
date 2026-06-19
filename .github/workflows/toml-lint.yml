@@ -29,8 +29,11 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Cache Cargo artifacts
+        uses: Swatinem/rust-cache@v2
+
       - name: Install Taplo
-        run: cargo install taplo-cli --locked
+        run: scripts/ci/install_cargo_cli.sh taplo-cli taplo 0.10.0
 
       - name: Run Taplo checks
         run: make lint-toml
