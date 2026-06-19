@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+name: Yosys Tang Nano 9K
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  yosys-tang-nano-9k:
+    name: Tang Nano 9K synthesis check
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Yosys
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y yosys
+
+      - name: Run Tang Nano 9K Yosys check
+        run: yosys -q scripts/verification/yosys_tang_nano_9k_check.ys

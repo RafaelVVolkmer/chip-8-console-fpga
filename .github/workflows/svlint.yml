@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+name: SVLint
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SVLINT_VERSION: 0.9.5
+
+jobs:
+  svlint:
+    name: SystemVerilog style
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install svlint
+        run: cargo install svlint --version "${SVLINT_VERSION}" --locked
+
+      - name: Run svlint
+        run: |
+          find . \
+            -path './.git' -prune -o \
+            -path './validation/rust/target' -prune -o \
+            -path './reports' -prune -o \
+            -type f -name '*.sv' -print |
+            sort |
+            xargs svlint -c .svlint.toml

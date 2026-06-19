@@ -1,0 +1,59 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+---
+name: TOML lint
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: toml-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  toml-lint:
+    name: TOML syntax and formatting
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Taplo
+        run: cargo install taplo-cli --locked
+
+      - name: Run Taplo lint
+        run: >-
+          taplo lint
+          .lychee.toml
+          .svlint.toml
+          .typos.toml
+          REUSE.toml
+          validation/rust/Cargo.toml
+          validation/rust/chip8-model/Cargo.toml
+          validation/rust/.cargo/config.toml
+          validation/rust/.cargo/nightly-aggressive.toml
+          validation/rust/rustfmt.toml
+
+      - name: Run Taplo format check
+        run: >-
+          taplo format --check
+          .lychee.toml
+          .svlint.toml
+          .typos.toml
+          REUSE.toml
+          validation/rust/Cargo.toml
+          validation/rust/chip8-model/Cargo.toml
+          validation/rust/.cargo/config.toml
+          validation/rust/.cargo/nightly-aggressive.toml
+          validation/rust/rustfmt.toml
