@@ -1,0 +1,34 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+# ---------------------------------------------------------------------------
+# Project options
+# ---------------------------------------------------------------------------
+[option]
+exclude_paths = [
+  "obj_dir/.*",
+  "build/.*",
+  "generated/.*",
+  "reports/.*",
+  "sim/.*",
+  "validation/rust/target/.*",
+  "vendor/.*",
+  "third_party/.*",
+]
+
+prefix_input = ""
+prefix_output = ""
+prefix_inout = "io_"
+prefix_label = "g_"
+
+textwidth = 100
+indent = 2
+
+re_required_module_ansi = "^[a-z][a-z0-9_]*$"
+re_required_module_nonansi = "^[a-z][a-z0-9_]*$"
+re_required_package = "^[a-z][a-z0-9_]*_pkg$"
+re_required_interface = "^[a-z][a-z0-9_]*_if$"
+re_required_parameter = "^[A-Z][A-Z0-9_]*$"
+re_required_localparam = "^[A-Z][A-Z0-9_]*$"
+
+# EOF

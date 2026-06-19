@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+version = 1
+SPDX-PackageName = "chip-8-console-fpga"
+SPDX-PackageDownloadLocation = "https://github.com/rafaelvvolkmer/chip-8-console-fpga"
+
+[[annotations]]
+path = [
+  "build/**",
+  "files.f",
+  "generated/chip8/roms/**",
+  "obj/**",
+  "reports/**",
+  "validation/formal/**/**/**",
+  "validation/formal/**/**/**/**",
+  "validation/formal/**/**/**/**/**",
+  "validation/formal/**/**/**/**/**/**",
+  "validation/programs/chip8/roms/**",
+  "validation/programs/chip8/smoke.ch8",
+  "validation/programs/chip8/**.mem",
+  "validation/rust/Cargo.lock",
+  "validation/rust/target/**",
+  "docs/**:Zone.Identifier",
+  "readme/images/**",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Rafael V. Volkmer <rafael.v.volkmer@gmail.com>"
+SPDX-License-Identifier = "GPL-3.0-only"
+
+# EOF
