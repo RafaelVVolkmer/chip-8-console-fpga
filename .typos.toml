@@ -3,6 +3,7 @@
 
 [files]
 extend-exclude = [
+  "DVCodingStyle.md",
   "VerilogCodingStyle.md",
   "generated/**",
   "reports/**",
@@ -10,6 +11,7 @@ extend-exclude = [
 ]
 
 [default.extend-words]
+edn = "edn"
 SER = "SER"
 
 # EOF

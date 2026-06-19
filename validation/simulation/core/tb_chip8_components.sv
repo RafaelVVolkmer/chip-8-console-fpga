@@ -23,6 +23,10 @@
 `default_nettype none
 
 module tb_chip8_components;
+  localparam int unsigned CHIP8_NUM_REGS = 16;
+  localparam int unsigned CHIP8_STACK_DEPTH = 16;
+  localparam int unsigned CHIP8_FRAMEBUFFER_BITS = 2048;
+
   // ------------------------------------------------------------
   // Testbench signals
   // ------------------------------------------------------------
@@ -87,6 +91,7 @@ module tb_chip8_components;
   logic fb_old;
   logic fb_new;
   logic [2047:0] framebuffer;
+  logic [10:0] fb_scan_addr;
   logic fb_scan_pixel;
   logic collision;
   logic [3:0] bcd_hundreds;
@@ -244,7 +249,7 @@ module tb_chip8_components;
   .draw_we_i(fb_draw_we),
   .draw_x_i(fb_x),
   .draw_y_i(fb_y),
-  .scan_addr_i(11'd0),
+  .scan_addr_i(fb_scan_addr),
   .old_pixel_o(fb_old),
   .new_pixel_o(fb_new),
   .scan_pixel_o(fb_scan_pixel),
@@ -325,7 +330,49 @@ module tb_chip8_components;
   end
   endtask
 
+  task automatic expect_reg(
+  input logic [3:0] addr,
+  input logic [7:0] expected
+  );
+  begin
+    reg_x_addr = addr;
+    reg_y_addr = addr;
+    reg_dbg_addr = addr;
+    #1;
+    assert (reg_x_data == expected) else $fatal(1,
+      "regfile x mismatch addr=%0d got=%02h exp=%02h", addr, reg_x_data,
+      expected);
+    assert (reg_y_data == expected) else $fatal(1,
+      "regfile y mismatch addr=%0d got=%02h exp=%02h", addr, reg_y_data,
+      expected);
+    assert (reg_dbg_data == expected) else $fatal(1,
+      "regfile dbg mismatch addr=%0d got=%02h exp=%02h", addr,
+      reg_dbg_data, expected);
+  end
+  endtask
+
+  task automatic draw_pixel(
+  input logic [5:0] x,
+  input logic [4:0] y
+  );
+  begin
+    fb_x = x;
+    fb_y = y;
+    fb_draw_we = '1;
+    tick();
+    fb_draw_we = '0;
+    #1;
+  end
+  endtask
+
   initial begin
+  int unsigned alu_a_idx;
+  int unsigned alu_b_idx;
+  int unsigned reg_idx;
+  int unsigned stack_idx;
+  logic [7:0] alu_a_val;
+  logic [7:0] alu_b_val;
+
   clk = '0;
   rst_n = '0;
   alu_op = chip8_alu_pkg::CHIP8_ALU_MOV;
@@ -346,6 +393,7 @@ module tb_chip8_components;
   fb_draw_we = '0;
   fb_x = '0;
   fb_y = '0;
+  fb_scan_addr = '0;
   sprite_byte = '0;
   sprite_bit = '0;
   sprite_x = '0;
@@ -370,7 +418,7 @@ module tb_chip8_components;
   expect_alu(chip8_alu_pkg::CHIP8_ALU_MOV, 8'h12, 8'h34, 8'h34, 1'b0);
   expect_alu(chip8_alu_pkg::CHIP8_ALU_OR, 8'hf0, 8'h0f, 8'hff, 1'b0);
   expect_alu(chip8_alu_pkg::CHIP8_ALU_AND, 8'hf0, 8'h0f, 8'h00, 1'b0);
-  expect_alu(chip8_alu_pkg::CHIP8_ALU_XOR, 8'haa, 8'h55, 8'hff, 1'b0);
+  expect_alu(chip8_alu_pkg::CHIP8_ALU_XOR, 8'hAA, 8'h55, 8'hff, 1'b0);
   expect_alu(chip8_alu_pkg::CHIP8_ALU_ADD, 8'hff, 8'h01, 8'h00, 1'b1);
   expect_alu(chip8_alu_pkg::CHIP8_ALU_ADD_IMM, 8'h01, 8'h02, 8'h03, 1'b0);
   expect_alu(chip8_alu_pkg::CHIP8_ALU_SUB, 8'h10, 8'h01, 8'h0f, 1'b1);
@@ -378,6 +426,56 @@ module tb_chip8_components;
   expect_alu(chip8_alu_pkg::CHIP8_ALU_RSUB, 8'h02, 8'h10, 8'h0e, 1'b1);
   expect_alu(chip8_alu_pkg::CHIP8_ALU_SHR, 8'h81, 8'h00, 8'h40, 1'b1);
   expect_alu(chip8_alu_pkg::CHIP8_ALU_SHL, 8'h80, 8'h00, 8'h00, 1'b1);
+
+  for (alu_a_idx = 0; alu_a_idx < 256; alu_a_idx += 17) begin
+    for (alu_b_idx = 0; alu_b_idx < 256; alu_b_idx += 29) begin
+      alu_a_val = alu_a_idx[7:0];
+      alu_b_val = alu_b_idx[7:0];
+      expect_alu(
+        chip8_alu_pkg::CHIP8_ALU_OR,
+        alu_a_val,
+        alu_b_val,
+        alu_a_val | alu_b_val,
+        1'b0
+      );
+      expect_alu(
+        chip8_alu_pkg::CHIP8_ALU_AND,
+        alu_a_val,
+        alu_b_val,
+        alu_a_val & alu_b_val,
+        1'b0
+      );
+      expect_alu(
+        chip8_alu_pkg::CHIP8_ALU_XOR,
+        alu_a_val,
+        alu_b_val,
+        alu_a_val ^ alu_b_val,
+        1'b0
+      );
+      expect_alu(
+        chip8_alu_pkg::CHIP8_ALU_ADD,
+        alu_a_val,
+        alu_b_val,
+        alu_a_val + alu_b_val,
+        (alu_a_idx + alu_b_idx) > 255
+      );
+      expect_alu(
+        chip8_alu_pkg::CHIP8_ALU_SUB,
+        alu_a_val,
+        alu_b_val,
+        alu_a_val - alu_b_val,
+        alu_a_idx >= alu_b_idx
+      );
+      expect_alu(
+        chip8_alu_pkg::CHIP8_ALU_RSUB,
+        alu_a_val,
+        alu_b_val,
+        alu_b_val - alu_a_val,
+        alu_b_idx >= alu_a_idx
+      );
+    end
+  end
+
   alu_a = 8'd255;
   #1 assert (bcd_hundreds == 4'd2 && bcd_tens == 4'd5 && bcd_ones == 4'd5)
     ;
@@ -433,6 +531,29 @@ module tb_chip8_components;
   tick();
   assert (!stack_overflow && !stack_underflow);
   stack_pop = '0;
+  tick();
+  stack_pop = '1;
+  tick();
+  assert (stack_underflow && !stack_overflow);
+  stack_pop = '0;
+  tick();
+
+  stack_push = '1;
+  for (stack_idx = 0; stack_idx < CHIP8_STACK_DEPTH; stack_idx++) begin
+    stack_push_data = 12'(stack_idx);
+    tick();
+    assert (!stack_overflow && !stack_underflow);
+  end
+  stack_push_data = 12'habc;
+  tick();
+  assert (stack_overflow && !stack_underflow);
+  stack_push = '0;
+  stack_pop = '1;
+  for (stack_idx = 0; stack_idx < CHIP8_STACK_DEPTH; stack_idx++) begin
+    tick();
+    assert (!stack_overflow && !stack_underflow);
+  end
+  stack_pop = '0;
 
   reg_we = '1;
   reg_waddr = 4'h1;
@@ -448,6 +569,18 @@ module tb_chip8_components;
   #1 assert (reg_x_data == 8'h11 && reg_y_data == 8'h22 &&
     reg_dbg_data == 8'h22);
   assert (reg_v0_data == 8'h00 && reg_vf_data == 8'h00);
+
+  reg_we = '1;
+  for (reg_idx = 0; reg_idx < CHIP8_NUM_REGS; reg_idx++) begin
+    reg_waddr = reg_idx[3:0];
+    reg_wdata = (reg_idx[7:0] << 4) ^ 8'h5a;
+    tick();
+  end
+  reg_we = '0;
+  for (reg_idx = 0; reg_idx < CHIP8_NUM_REGS; reg_idx++) begin
+    expect_reg(reg_idx[3:0], (reg_idx[7:0] << 4) ^ 8'h5a);
+  end
+  assert (reg_v0_data == 8'h5a && reg_vf_data == 8'hAA);
 
   alu_a = 8'h03;
   alu_b = 8'h02;
@@ -486,6 +619,27 @@ module tb_chip8_components;
   assert (collision);
   fb_draw_we = '0;
   #1 assert (!collision);
+  fb_clear = '1;
+  tick();
+  fb_clear = '0;
+  assert (framebuffer == '0);
+  assert (!fb_scan_pixel);
+
+  draw_pixel(6'd0, 5'd0);
+  draw_pixel(6'd1, 5'd0);
+  draw_pixel(6'd0, 5'd8);
+  draw_pixel(6'd63, 5'd31);
+  fb_scan_addr = 11'd0;
+  #1 assert (fb_scan_pixel && framebuffer[0]);
+  fb_scan_addr = 11'd1;
+  #1 assert (fb_scan_pixel && framebuffer[1]);
+  fb_scan_addr = 11'd512;
+  #1 assert (fb_scan_pixel && framebuffer[512]);
+  fb_scan_addr = 11'd2047;
+  #1 assert (fb_scan_pixel && framebuffer[2047]);
+  draw_pixel(6'd0, 5'd8);
+  fb_scan_addr = 11'd512;
+  #1 assert (!fb_scan_pixel && !framebuffer[512]);
   fb_clear = '1;
   tick();
   fb_clear = '0;

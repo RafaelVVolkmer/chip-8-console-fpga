@@ -434,7 +434,7 @@ module tb_chip8_blocks_exhaustive;
   // Stimulus and checks
   // ------------------------------------------------------------
 
-  always #5 clk = !clk;
+  always #5 clk <= !clk;
 
   // ------------------------------------------------------------
   // Testbench tasks
@@ -545,7 +545,7 @@ module tb_chip8_blocks_exhaustive;
   io_delay = 8'h12;
   io_sound = 8'h34;
   bus_addr = '0;
-  bus_mem_rdata = 8'haa;
+  bus_mem_rdata = 8'hAA;
   bus_io_rdata = 8'h55;
   addr_decode_addr = '0;
   pc_we = '0;

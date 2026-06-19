@@ -110,7 +110,10 @@ module chip8_framebuffer #(
         framebuffer_q[bank_idx] <= '0;
       end
     end else begin
-      framebuffer_q <= framebuffer_d;
+      for (int unsigned bank_idx = 0; bank_idx < FRAMEBUFFER_BANKS;
+         bank_idx++) begin
+        framebuffer_q[bank_idx] <= framebuffer_d[bank_idx];
+      end
     end
   end
 

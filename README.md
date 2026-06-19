@@ -27,7 +27,7 @@ SPDX-License-Identifier: GPL-3.0-only
 
 <div align="center">
 
-  [Rafael V. Volkmer](https://www.linkedin.com/in/rafaelvvolkmer/) ·
+  Rafael V. Volkmer ·
   rafael.v.volkmer@gmail.com
 
 </div>
@@ -52,13 +52,14 @@ interfaces, timers, ROM loading, SD/SPI boot support, debug/DAP logic, CDC
 helpers, board wrappers, formal targets, Verilator simulations, Yosys checks,
 and a Rust validation engine used as an executable reference model.
 
-The RTL follows [VerilogCodingStyle.md](VerilogCodingStyle.md), a repository
-copy of the [lowRISC Verilog/SystemVerilog coding style guide](https://github.com/lowRISC/style-guides/blob/master/VerilogCodingStyle.md),
-with project-local GPL-3.0-only headers and CHIP-8 module documentation. The
-practical rules used here include two-space indentation, ANSI module
-declarations, `logic`-based SystemVerilog, explicit port connections,
-`always_ff`/`always_comb`, active-low reset suffix `_ni` or `_no`, and
-input/output suffixes `_i` and `_o`.
+The RTL follows [VerilogCodingStyle.md](VerilogCodingStyle.md), and the
+validation code follows [DVCodingStyle.md](DVCodingStyle.md). These repository
+copies track the lowRISC SystemVerilog and DV style guides with project-local
+GPL-3.0-only headers and CHIP-8 module documentation. The practical rules used
+here include two-space indentation, ANSI module declarations, `logic`-based
+SystemVerilog, explicit port connections, `always_ff`/`always_comb`,
+active-low reset suffix `_ni` or `_no`, and input/output suffixes `_i` and
+`_o`.
 
 The project is organized around four design goals:
 
@@ -137,6 +138,7 @@ Useful CHIP-8 references and simulators:
 │   └── simulation/             # Verilator testbenches and simulation notes
 ├── files.f                     # Portable RTL/testbench file list
 ├── Makefile                    # Local verification, synthesis, programming, and cleanup entry point
+├── DVCodingStyle.md            # Project DV and testbench coding standard
 └── VerilogCodingStyle.md       # Project SystemVerilog coding standard
 ```
 
@@ -305,9 +307,6 @@ triage:
 [issues-url]: https://github.com/RafaelVVolkmer/chip-8-console-fpga/issues
 [license-shield]: https://img.shields.io/github/license/RafaelVVolkmer/chip-8-console-fpga.svg?style=flat-square&logo=libreofficeimpress&logoColor=white&label=License&labelColor=1F2328&color=3FB950
 [license-url]: https://github.com/RafaelVVolkmer/chip-8-console-fpga/blob/main/LICENSE
-
-[release-shield]: https://img.shields.io/github/v/release/RafaelVVolkmer/chip-8-console-fpga?include_prereleases&style=flat-square&logo=github&logoColor=white&label=Release&labelColor=1F2328&color=8957E5
-[release-url]: https://github.com/RafaelVVolkmer/chip-8-console-fpga/releases
 
 [repo-size-shield]: https://img.shields.io/github/repo-size/RafaelVVolkmer/chip-8-console-fpga?style=flat-square&logo=github&logoColor=white&label=Repo%20size&labelColor=1F2328&color=6E7681
 [repo-size-url]: https://github.com/RafaelVVolkmer/chip-8-console-fpga

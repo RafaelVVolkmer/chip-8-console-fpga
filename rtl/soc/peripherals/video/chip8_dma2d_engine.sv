@@ -103,7 +103,7 @@ module chip8_dma2d_engine #(
   // - Updated sequentially by the command FSM.
   // - Muxed with the live framebuffer until an overlay operation completes.
   (* ram_style = "distributed", syn_ramstyle = "logic" *)
-  logic              fb_ram_q [0:FB_BITS-1];
+  logic [FB_BITS-1:0] fb_ram_q;
   logic              overlay_enable_q;
   logic [2:0]        op_q;
   logic              color_q;
@@ -163,12 +163,7 @@ module chip8_dma2d_engine #(
   // Combinational logic
   // ------------------------------------------------------------
 
-  always_comb begin : dma2d_frame_mirror_comb
-    for (int idx = '0; idx < FB_BITS; idx++) begin
-      framebuffer_o[idx] = overlay_enable_q ? fb_ram_q[idx] :
-        framebuffer_i[idx];
-    end
-  end
+  assign framebuffer_o = overlay_enable_q ? fb_ram_q : framebuffer_i;
 
   // ------------------------------------------------------------
   // Sequential logic
@@ -177,9 +172,7 @@ module chip8_dma2d_engine #(
   always_ff @(posedge clk_i) begin : dma2d_ff
     if (!rst_ni) begin
       state_q          <= CHIP8_DMA2D_ENGINE_STATE_IDLE;
-      for (int idx = '0; idx < FB_BITS; idx++) begin
-        fb_ram_q[idx] <= '0;
-      end
+      fb_ram_q         <= '0;
       overlay_enable_q <= '0;
       op_q             <= OP_SNAPSHOT;
       color_q          <= '0;
